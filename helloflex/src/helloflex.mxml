@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TabbedViewNavigatorApplication xmlns:fx="http://ns.adobe.com/mxml/2009"
+								  xmlns:s="library://ns.adobe.com/flex/spark"
+								  applicationDPI="240" >
+	
+	<fx:Script>
+		<![CDATA[
+			protected function button1_clickHandler(event:MouseEvent):void
+			{
+				tabbedNavigator.selectedIndex = 0;
+				ViewNavigator(tabbedNavigator.selectedNavigator).popToFirstView();
+			}
+			
+			protected function btn_refresh_clickHandler(event:MouseEvent):void
+			{
+				trace("btn_refresh_clickHandler()");
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	
+	<s:navigators>
+		<s:ViewNavigator label="录音" firstView="views.RecordView">
+			<s:navigationContent>
+				<s:Button id="btn_back1"
+						  click="button1_clickHandler(event)"
+						  icon="@Embed(source='assets/ic_back.png')"/>
+			</s:navigationContent>
+			<s:actionContent>
+				<s:Button id="btn_refresh"
+						  label="Refresh"
+						  click="btn_refresh_clickHandler(event)"/>
+			</s:actionContent>
+		</s:ViewNavigator>
+		<s:ViewNavigator label="播放" firstView="views.PlayRecordView">
+			<s:navigationContent>
+				<s:Button id="btn_back2" 
+						  icon="@Embed(source='assets/ic_back.png')"
+						  click="button1_clickHandler(event)"/>
+			</s:navigationContent>
+		</s:ViewNavigator>
+		<s:ViewNavigator label="ANE接口" firstView="views.ANEInterfaceView">
+			<s:navigationContent>
+				<s:Button id="btn_back3" 
+						  icon="@Embed(source='assets/ic_back.png')"
+						  click="button1_clickHandler(event)"/> 
+			</s:navigationContent>
+		</s:ViewNavigator>
+	</s:navigators>
+	
+</s:TabbedViewNavigatorApplication>

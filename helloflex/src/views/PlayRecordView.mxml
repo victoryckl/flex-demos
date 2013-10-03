@@ -4,8 +4,25 @@
 	<s:layout>
 		<s:VerticalLayout/>
 	</s:layout>
+	
+	<fx:Script>
+		<![CDATA[
+			protected function btn_refresh_clickHandler(event:MouseEvent):void
+			{
+				trace("refresh");
+			}
+		]]>
+	</fx:Script>
+	
 	<fx:Declarations>
 		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
 	</fx:Declarations>
+	
+	<s:actionContent>
+		<s:Button id="btn_refresh"
+				  label="Refresh"
+				  click="btn_refresh_clickHandler(event)"/>
+	</s:actionContent>
+	
 	<s:Label text="page 2"/>
 </s:View>

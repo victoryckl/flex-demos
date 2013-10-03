@@ -5,17 +5,10 @@
 	
 	<fx:Script>
 		<![CDATA[
-			protected function button1_clickHandler(event:MouseEvent):void
+			protected function btn_back1_clickHandler(event:MouseEvent):void
 			{
-				tabbedNavigator.selectedIndex = 0;
-				ViewNavigator(tabbedNavigator.selectedNavigator).popToFirstView();
+				NativeApplication.nativeApplication.exit();
 			}
-			
-			protected function btn_refresh_clickHandler(event:MouseEvent):void
-			{
-				trace("btn_refresh_clickHandler()");
-			}
-			
 		]]>
 	</fx:Script>
 	
@@ -24,30 +17,25 @@
 	</fx:Declarations>
 	
 	<s:navigators>
-		<s:ViewNavigator label="录音" firstView="views.RecordView">
+		<s:ViewNavigator width="100%" height="100%" label="录音" firstView="views.RecordView">
 			<s:navigationContent>
 				<s:Button id="btn_back1"
-						  click="button1_clickHandler(event)"
+						  click="btn_back1_clickHandler(event)"
 						  icon="@Embed(source='assets/ic_back.png')"/>
 			</s:navigationContent>
-			<s:actionContent>
-				<s:Button id="btn_refresh"
-						  label="Refresh"
-						  click="btn_refresh_clickHandler(event)"/>
-			</s:actionContent>
 		</s:ViewNavigator>
-		<s:ViewNavigator label="播放" firstView="views.PlayRecordView">
+		<s:ViewNavigator width="100%" height="100%" label="播放" firstView="views.PlayRecordView">
 			<s:navigationContent>
-				<s:Button id="btn_back2" 
-						  icon="@Embed(source='assets/ic_back.png')"
-						  click="button1_clickHandler(event)"/>
+				<s:Button id="btn_back2"
+						  click="btn_back1_clickHandler(event)"
+						  icon="@Embed(source='assets/ic_back.png')"/>
 			</s:navigationContent>
 		</s:ViewNavigator>
-		<s:ViewNavigator label="ANE接口" firstView="views.ANEInterfaceView">
+		<s:ViewNavigator width="100%" height="100%" label="ANE接口" firstView="views.ANEInterfaceView">
 			<s:navigationContent>
-				<s:Button id="btn_back3" 
-						  icon="@Embed(source='assets/ic_back.png')"
-						  click="button1_clickHandler(event)"/> 
+				<s:Button id="btn_back3"
+						  click="btn_back1_clickHandler(event)"
+						  icon="@Embed(source='assets/ic_back.png')"/>
 			</s:navigationContent>
 		</s:ViewNavigator>
 	</s:navigators>

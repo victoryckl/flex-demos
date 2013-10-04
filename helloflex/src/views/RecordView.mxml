@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009"
 		xmlns:s="library://ns.adobe.com/flex/spark" title="录音">
 	<s:layout>
 		<s:VerticalLayout/>
@@ -8,4 +8,49 @@
 		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
 	</fx:Declarations>
 	<s:Label text="page 1"/>
+	
+	<fx:Script>
+		<![CDATA[
+		import mx.events.FlexEvent;
+		
+		import org.osmf.net.StreamType;
+		
+		import spark.components.mediaClasses.DynamicStreamingVideoItem;
+		import spark.components.mediaClasses.DynamicStreamingVideoSource;
+		
+		private var _camynamicStreamingVideoSource =  new DynamicStreamingVideoSource();
+		private var _dynVideoSource:DynamicStreamingVideoSource;
+		
+		protected function video_creationCompleteHandler(event:FlexEvent):void
+		{
+			_dynVideoSource=new DynamicStreamingVideoSource();
+			
+			var videoItems:Vector.<DynamicStreamingVideoItem>;
+			videoItems=new Vector.<DynamicStreamingVideoItem>();
+			videoItems[0]=new DynamicStreamingVideoItem();
+			
+			_dynVideoSource.host= "";
+			_dynVideoSource.streamType=StreamType.LIVE;
+			_dynVideoSource.streamItems=videoItems;
+			
+			myVideo.source=_dynVideoSource;
+			
+			if(myVideo.videoObject){
+			}
+			else {
+			}
+			
+			var cam:Camera = Camera.getCamera(); //Camera.names[0]);
+			cam.setMode(640, 480, 15);
+			cam.setQuality(0, 80);
+			myVideo.videoObject.attachCamera(cam); 
+		}
+		]]>
+	</fx:Script>
+	<s:Panel x="53" y="26" width="394" height="290" title="My Camera">
+		<s:VideoDisplay id="myVideo"
+						x="10" y="10" 
+						width="371" height="238" 
+						creationComplete="video_creationCompleteHandler(event);"/>
+	</s:Panel>
 </s:View>

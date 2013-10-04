@@ -37,6 +37,7 @@
 			
 			protected function btn_back1_clickHandler(event:MouseEvent):void
 			{
+//				showExitAlert();
 				NativeApplication.nativeApplication.exit();
 			}
 			
@@ -44,6 +45,7 @@
 			
 			private function showExitAlert():void
 			{
+				trace("showExitAlert()");
 				myAlert.open(this, true);
 				// Increase the width and height.
 				myAlert.width += 100;
@@ -51,6 +53,8 @@
 				
 				updateAlertPosition();
 				stage.addEventListener(ResizeEvent.RESIZE, updateAlertPosition);//设置界面监听，当flex中组件大小改变时的监听
+				this.addEventListener("alert_yes", appExit, true);
+				this.addEventListener("alert_no", clearAlert, true);
 			}
 
 			protected function updateAlertPosition(event:Event = null):void
@@ -63,12 +67,14 @@
 
 			protected function clearAlert(event:MouseEvent=null):void
 			{
+				trace("clearAlert");
 				stage.removeEventListener(ResizeEvent.RESIZE, updateAlertPosition);
 				myAlert.close();
 			}
 			
 			protected function appExit(event:MouseEvent=null):void
 			{
+				trace("appExit yes");
 				clearAlert();
 				NativeApplication.nativeApplication.exit();
 			}
@@ -84,12 +90,22 @@
 					<s:VGroup width="100%" horizontalAlign="center"
 							  paddingTop="20" gap="20">
 						<s:Label text="Your custom alert box"/>
-						<s:HGroup>					
-							<s:Button label="YES" click=""/>
-							<s:Button label="NO" click=""/>
+						<s:HGroup>
+							<s:Button label="YES" click="sendEvent('alert_yes')"/>
+							<s:Button label="NO" click="sendEvent('alert_no')"/>
 						</s:HGroup>
 					</s:VGroup>
 				</s:Panel>
+				
+				<fx:Script>
+					<![CDATA[
+						private function sendEvent(type:String):void{
+							var event:Event=new Event(type, true);
+							this.dispatchEvent(event);
+						}
+					]]>
+				</fx:Script>
+
 			</s:SkinnablePopUpContainer>
 		</fx:Component>
 	</fx:Declarations>

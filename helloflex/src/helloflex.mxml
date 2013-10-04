@@ -6,6 +6,8 @@
 	
 	<fx:Script>
 		<![CDATA[
+			import flash.net.dns.SRVRecord;
+			
 			import flashx.textLayout.events.UpdateCompleteEvent;
 			
 			import mx.events.FlexEvent;
@@ -47,32 +49,32 @@
 			{
 				trace("showExitAlert()");
 				myAlert.open(this, true);
-				// Increase the width and height.
-				myAlert.width += 100;
-				myAlert.height += 100;
 				
 				updateAlertPosition();
 				stage.addEventListener(ResizeEvent.RESIZE, updateAlertPosition);//设置界面监听，当flex中组件大小改变时的监听
-				this.addEventListener("alert_yes", appExit, true);
-				this.addEventListener("alert_no", clearAlert, true);
 			}
 
 			protected function updateAlertPosition(event:Event = null):void
 			{
 				// Center the pop-up in the parent container.
 				if (myAlert.isOpen) {
+					var min = screen.width < screen.height ? screen.width : screen.height;
+					
+					myAlert.width = min * 3.0 / 4;
+					myAlert.height = myAlert.width / 2.0;
+					
 					PopUpManager.centerPopUp(myAlert);
 				}
 			}
 
-			protected function clearAlert(event:MouseEvent=null):void
+			public function clearAlert(event:MouseEvent=null):void
 			{
 				trace("clearAlert");
 				stage.removeEventListener(ResizeEvent.RESIZE, updateAlertPosition);
 				myAlert.close();
 			}
 			
-			protected function appExit(event:MouseEvent=null):void
+			public function appExit(event:MouseEvent=null):void
 			{
 				trace("appExit yes");
 				clearAlert();
@@ -86,26 +88,15 @@
 		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
 		<fx:Component className="MyAlert">
 			<s:SkinnablePopUpContainer>
-				<s:Panel title="My Alert Panel" width="100%" height="100%">
-					<s:VGroup width="100%" horizontalAlign="center"
-							  paddingTop="20" gap="20">
-						<s:Label text="Your custom alert box"/>
-						<s:HGroup>
-							<s:Button label="YES" click="sendEvent('alert_yes')"/>
-							<s:Button label="NO" click="sendEvent('alert_no')"/>
+				<s:Panel title="hello,flex!" width="100%" height="85%" fontSize="40">
+					<s:VGroup width="100%" height="100%" horizontalAlign="center" verticalAlign="bottom" paddingTop="20" gap="20">
+						<s:Label text="确定要退出吗？" fontSize="35"/>
+						<s:HGroup width="100%" height="50%" horizontalAlign="center" verticalAlign="bottom"  fontSize="30">
+							<s:Button label="YES" width="50%" height="100%" click="outerDocument.appExit()"/>
+							<s:Button label="NO" width="50%" height="100%" click="outerDocument.clearAlert()"/>
 						</s:HGroup>
 					</s:VGroup>
 				</s:Panel>
-				
-				<fx:Script>
-					<![CDATA[
-						private function sendEvent(type:String):void{
-							var event:Event=new Event(type, true);
-							this.dispatchEvent(event);
-						}
-					]]>
-				</fx:Script>
-
 			</s:SkinnablePopUpContainer>
 		</fx:Component>
 	</fx:Declarations>

@@ -109,7 +109,7 @@
 						  icon="@Embed(source='assets/ic_back.png')"/>
 			</s:navigationContent>
 		</s:ViewNavigator>
-		<s:ViewNavigator width="100%" height="100%" label="播放" firstView="views.PlayRecordView">
+		<s:ViewNavigator width="100%" height="100%" label="重力感应" firstView="views.GSensorView">
 			<s:navigationContent>
 				<s:Button id="btn_back2"
 						  click="btn_back1_clickHandler(event)"

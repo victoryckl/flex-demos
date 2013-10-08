@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		title="重力感应"
+		creationComplete="view1_creationCompleteHandler(event)">
+	<s:layout>
+		<s:VerticalLayout/>
+	</s:layout>
+	
+	<fx:Script>
+		<![CDATA[
+			import flash.sensors.Accelerometer;
+			import flash.text.TextField;
+			
+			import mx.events.FlexEvent;
+			
+			protected function btn_refresh_clickHandler(event:MouseEvent):void
+			{
+				trace("refresh");
+			}
+			
+			
+			//----------------------------------------
+			var acc1:Accelerometer = new Accelerometer();
+			var isSupported:Boolean = Accelerometer.isSupported;
+			function checksupport():void {
+				if (isSupported) {
+					txt_gsensor.text = "Accelerometer feature supported";
+					acc1.addEventListener(AccelerometerEvent.UPDATE, updateHandler);
+				} else {
+					txt_gsensor.text = "Accelerometer feature not supported";
+				}
+			}
+			
+			function updateHandler(evt:AccelerometerEvent):void {
+				txt_gsensor.text = String("at: " + evt.timestamp + "\n" 
+					+ "acceleration X: " + evt.accelerationX + "\n" 
+					+ "acceleration Y: " + evt.accelerationY + "\n" 
+					+ "acceleration Z: " + evt.accelerationZ);
+			}
+			
+			protected function view1_creationCompleteHandler(event:FlexEvent):void
+			{
+				checksupport();
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	
+	<s:actionContent>
+		<s:Button id="btn_refresh"
+				  label="Refresh"
+				  click="btn_refresh_clickHandler(event)"/>
+	</s:actionContent>
+	
+	<s:Label text="page 2"/>
+	<s:Label id="txt_gsensor" text="重力感应"/>
+</s:View>

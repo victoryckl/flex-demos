@@ -9,48 +9,171 @@
 	</fx:Declarations>
 	<s:Label text="page 1"/>
 	
-	<fx:Script>
-		<![CDATA[
-		import mx.events.FlexEvent;
-		
-		import org.osmf.net.StreamType;
-		
-		import spark.components.mediaClasses.DynamicStreamingVideoItem;
-		import spark.components.mediaClasses.DynamicStreamingVideoSource;
-		
-		private var _camynamicStreamingVideoSource =  new DynamicStreamingVideoSource();
-		private var _dynVideoSource:DynamicStreamingVideoSource;
-		
-		protected function video_creationCompleteHandler(event:FlexEvent):void
-		{
-			_dynVideoSource=new DynamicStreamingVideoSource();
-			
-			var videoItems:Vector.<DynamicStreamingVideoItem>;
-			videoItems=new Vector.<DynamicStreamingVideoItem>();
-			videoItems[0]=new DynamicStreamingVideoItem();
-			
-			_dynVideoSource.host= "";
-			_dynVideoSource.streamType=StreamType.LIVE;
-			_dynVideoSource.streamItems=videoItems;
-			
-			myVideo.source=_dynVideoSource;
-			
-			if(myVideo.videoObject){
-			}
-			else {
-			}
-			
-			var cam:Camera = Camera.getCamera(); //Camera.names[0]);
-			cam.setMode(640, 480, 15);
-			cam.setQuality(0, 80);
-			myVideo.videoObject.attachCamera(cam); 
-		}
-		]]>
-	</fx:Script>
-	<s:Panel x="53" y="26" width="394" height="290" title="My Camera">
-		<s:VideoDisplay id="myVideo"
-						x="10" y="10" 
-						width="371" height="238" 
-						creationComplete="video_creationCompleteHandler(event);"/>
-	</s:Panel>
+<fx:Script>	
+	import com.adobe.audio.format.WAVWriter;
+	import fr.kikko.lab.ShineMP3Encoder;
+	import mx.events.FlexEvent;
+	import mx.rpc.events.ResultEvent;
+	import mx.rpc.http.HTTPService;
+	private var _loader:URLLoader;
+	protected function windowedapplication1_initializeHandler(event:FlexEvent):void
+	{
+	init();
+	//    registerClassAlias("com.gameabc.game.voice.controller.vo.LoadUpVoiceVO",LoadUpVoiceVO);
+	//
+	//    _loader = new URLLoader();
+	//    _loader.dataFormat = URLLoaderDataFormat.BINARY;
+	//    _loader.addEventListener(Event.COMPLETE, loaderHandler);
+	//    _loader.addEventListener(SecurityErrorEvent.SECURITY_ERROR, loaderHandler);
+	//    _loader.addEventListener(IOErrorEvent.IO_ERROR, loaderHandler);
+	//
+	//    // post二进制数据给服务端
+	////    var vo:LoadUpVoiceVO = new LoadUpVoiceVO;
+	////    vo.value="testtesttestValue";
+	////    vo.time=123456;
+	////
+	////    var aa:ByteArray = new ByteArray();//数字型数组
+	////    var aaStr:String = "aaaaaaaaaaaaaaaaaaaa";
+	////    aa.writeUTF(aaStr);
+	////    var bb:ByteArray = new ByteArray();//字符串型数组
+	////    var bbStr:String = "bbbbbbbbbbbbbbbbbbbbbb";
+	////    bb.writeUTF(bbStr);
+	////    var value:Array = [aa,bb];
+	////    vo.byteArrays = value;
+	//
+	//    var vo:TakeVoiceVO = new TakeVoiceVO();
+	//    vo.value="take";
+	//    vo.time=12345;
+	//    vo.voiceId=100004;
+	//
+	//    var out:ByteArray = new ByteArray();
+	//    out.writeObject(vo);
+	//
+	//    var request:URLRequest = new URLRequest("http://localhost:8080/Game_Voice/voice.take");
+	//    request.data = out;
+	//    request.method = URLRequestMethod.POST;
+	//
+	//    _loader.load(request);
+	}
+	private function loaderHandler(event:*):void {
+	trace(event.type);
+	switch(event.type) {
+	case Event.COMPLETE:
+	// 接收到的服务端数据
+	var start:Number=getTimer();
+	var byte:ByteArray = _loader.data as ByteArray;
+	trace(byte.length);
+	byte.uncompress();
+	//      var obj:LoadUpVoiceResultVO = byte.readObject();
+	//      var end:Number=getTimer();
+	//      trace("耗时：" + (end - start) + "毫秒");
+	//      trace(obj);
+	//      trace(obj.voiceIds);
+	//      trace(obj.voiceIds.length);
+	//      trace(obj.voiceIds[0]);
+	//      trace(obj.voiceIds[1]);
+	var obj:TakeVoiceResultVO = byte.readObject();
+	trace(obj);
+	if(null == obj)return;
+	trace(obj.voiceId);
+	trace(obj.voiceBytes.length);
+	trace(obj.voiceBytes.readUTF());
+	break;
+	}
+	}
+	public function httpResult(event:ResultEvent):void
+	{
+	trace("aaaaaaaaaaaaaaaaaaa")
+	trace(event.result);
+	}
+	[Bindable]
+	public var isRecording  :Boolean = false;
+	private var _timer   :Timer = new Timer(1000, 20);
+	private var _recordByte  :ByteArray;
+	private var _microphone  :Microphone;
+	private function init():void {
+	_microphone = Microphone.getMicrophone();
+	if (_microphone==null) {
+	return;
+	}
+	_timer.addEventListener(TimerEvent.TIMER, function (e:TimerEvent):void {
+	});
+	_timer.addEventListener(TimerEvent.TIMER_COMPLETE, _stopRecordHandler);
+	_microphone.rate = 5;
+	_microphone.encodeQuality = 1;
+	_microphone.setUseEchoSuppression(true);
+	_microphone.setLoopBack(false);
+	_microphone.setSilenceLevel(0,0);
+	_microphone.gain=50;
+	}
+	private function _playRecordHandler(e:MouseEvent):void{
+	_recordByte.position = 0;
+	var soundOutput:Sound = new Sound();
+	soundOutput.addEventListener(SampleDataEvent.SAMPLE_DATA, _playSoundSampleDataHandler);
+	soundOutput.play();
+	}
+	private function _playSoundSampleDataHandler(e:SampleDataEvent) : void    {
+	if (!_recordByte.bytesAvailable > 0)   {
+	return;
+	}
+	var i:int = 0;
+	var _length:Number;
+	while (i < 8192)       {
+	_length = 0;
+	if (_recordByte.bytesAvailable > 0)    {
+	_length = _recordByte.readFloat();
+	}
+	e.data.writeFloat(_length);
+	e.data.writeFloat(_length);
+	i++;
+	}
+	}
+	private function _startRecHandler(e:MouseEvent):void {
+	isRecording = true;
+	_recordByte = new ByteArray();
+	_microphone.addEventListener(SampleDataEvent.SAMPLE_DATA, _microphoneSampleDataHandler);
+	_timer.reset();
+	_timer.start();
+	}
+	public function _stopRecordHandler(e:Event = null) : void     {
+	_timer.stop();
+	isRecording = false;
+	_microphone.removeEventListener(SampleDataEvent.SAMPLE_DATA, _microphoneSampleDataHandler);
+	}
+	private function _microphoneSampleDataHandler(e:SampleDataEvent):void {
+	_recordByte.writeBytes(e.data);
+	}
+	private function _saveWavHandler(e:Event = null) : void    {
+	var _wavWriter :WAVWriter = new WAVWriter();
+	_wavWriter.numOfChannels = 1;
+	_wavWriter.sampleBitRate = 8;
+	_wavWriter.samplingRate = 5100;
+	var _resultSamples:ByteArray = new ByteArray();
+	_recordByte.position = 0;
+	_wavWriter.processSamples(_resultSamples,_recordByte, _wavWriter.samplingRate, 1);
+	var _file  :FileReference = new FileReference();
+	_file.save(_resultSamples, "FP10MicphoneRecord.wav");
+	//    _resultSamples.position = 0;
+	//
+	//    mp3encoder = new ShineMP3Encoder(_resultSamples);
+	//    mp3encoder.addEventListener(Event.COMPLETE, onEncoded);
+	//    mp3encoder.start();
+	}
+	private function onEncoded(e:Event):void{
+	//    myTI.text = "mp3 encoded";
+	mp3encoder.mp3Data.position = 0;
+	mp3encoder.saveAs("monSon.mp3");
+	//    var _file  :FileReference = new FileReference();
+	//    _file.save(_resultSamples, "FP10MicphoneRecord.wav");
+	}
+	private var mp3encoder:ShineMP3Encoder;
+	]]>
+</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<s:Button id="start" x="72" y="69" label="开始" click="_startRecHandler(event)"/>
+	<s:Button id="end" x="72" y="143" label="结束" click="_stopRecordHandler(event)"/>
+	<s:Button id="save" x="72" y="225" label="保存" click="_saveWavHandler(event)"/>
+	<s:Button id="ting" x="72" y="291" label="听" click="_playRecordHandler(event)"/>
 </s:View>

@@ -1,0 +1,53 @@
+air mobile 重力感应  
+包	flash.sensors
+类	public class Accelerometer
+继承	Accelerometer  EventDispatcher  Object
+语言版本: 	ActionScript 3.0
+运行时版本: 	AIR 2, Flash Player 10.1, Flash Lite 4
+Accelerometer 类根据由设备的运动传感器检测的活动调度事件。此数据表示设备的位置或沿三维轴的移动。当设备移动时，传感器会检测到此移动并返回加速数据。Accelerometer 类提供了各种方法，用于查询是否支持加速计以及设置调度加速事件时使用的速率。
+
+注意：使用 Accelerometer.isSupported 属性测试运行时环境是否能够使用此功能。当为各个 API 入口列出的运行时版本可以访问 Accelerometer 类及其成员时，运行时的当前环境将确定此功能的可用性。例如，您可以使用 Flash Player 10.1 的 Accelerometer 类属性编译代码，但是需要使用 Accelerometer.isSupported 属性测试 Accelerometer 功能在 Flash Player 运行时的当前部署环境中的可用性。如果Accelerometer.isSupported 在运行时为 true，则当前存在 Accelerometer 支持。
+
+
+
+var myTextField:TextField = new TextField();
+myTextField.width = 200;
+addChild(myTextField);
+var acc1:Accelerometer = new Accelerometer();
+var isSupported:Boolean = Accelerometer.isSupported;
+checksupport();
+
+function checksupport():void {
+    if (isSupported) {
+        myTextField.text = "Accelerometer feature supported";
+        acc1.addEventListener(AccelerometerEvent.UPDATE, updateHandler);
+    } else {
+        myTextField.text = "Accelerometer feature not supported";
+    }
+}
+
+function updateHandler(evt:AccelerometerEvent):void {
+    myTextField.text = String("at: " + evt.timestamp + "\n" + "acceleration X: " + evt.accelerationX + "\n" + "acceleration Y: " + evt.accelerationY + "\n" + "acceleration Z: " + evt.accelerationZ);
+}
+
+update	事件	 
+事件对象类型: flash.events.AccelerometerEvent
+属性 AccelerometerEvent.type = flash.events.AccelerometerEvent.UPDATE
+语言版本: 	ActionScript 3.0
+运行时版本: 	AIR 2, Flash Player 10.1, Flash Lite 4
+为响应来自加速计传感器的更新而调度 update 事件。在下列情况下调度此事件：
+
+当通过 addEventListener() 附加新的侦听器函数时，此事件将一次性传送给所有注册的侦听器，用于提供加速计的当前值。
+以设备确定的时间间隔从平台获得加速计更新时。
+当应用程序丢失对加速计的更改时（例如，空闲状态后恢复运行时）。
+定义 AccelerometerEvent 事件对象的 type 属性的值。
+此事件具有以下属性：
+
+属性			值
+bubbles			false
+cancelable		false；没有要取消的默认行为。
+currentTarget	当前正在使用某个事件侦听器处理 Event 对象的对象。
+timestamp		加速计更新的时间戳。
+accelerationX	沿 Ｘ 轴的加速值（以 G 为单位，即 9.8m/sec/sec）。
+accelerationY	沿 Y 轴的加速值（以 G 为单位，即 9.8m/sec/sec）。
+accelerationZ	沿 Z 轴的加速值（以 G 为单位，即 9.8m/sec/sec）。

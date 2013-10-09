@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:WindowedApplication xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" 
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009"
+						xmlns:s="library://ns.adobe.com/flex/spark"
 						width="250" height="228" title="DTMF Wizard" creationComplete="initApp()">
 
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 
 			/*  
@@ -149,28 +150,32 @@
 			
 			
 		]]>
-	</mx:Script>
+	</fx:Script>
 	
 	
-	<mx:TextInput id="myDisplay" height="50" text="" fontSize="32" textAlign="center" 
-				  borderStyle="inset" left="10" right="10" top="10"/>
-	<mx:Button x="10" y="68" label="1" click="playDTMF('1')"/>
-	<mx:Button x="58" y="68" label="2" click="playDTMF('2')"/>
-	<mx:Button x="106" y="68" label="3" click="playDTMF('3')"/>
-	<mx:Button x="10" y="98" label="4" click="playDTMF('4')"/>
-	<mx:Button x="58" y="98" label="5" click="playDTMF('5')"/>
-	<mx:Button x="106" y="98" label="6" click="playDTMF('6')"/>
-	<mx:Button x="10" y="128" label="7" click="playDTMF('7')"/>
-	<mx:Button x="58" y="128" label="8" click="playDTMF('8')"/>
-	<mx:Button x="107" y="128" label="9" click="playDTMF('9')"/>
-	<mx:Button x="10" y="158" label="*" click="playDTMF('*')"/>
-	<mx:Button x="58" y="158" label="0" click="playDTMF('0')"/>
-	<mx:Button x="106" y="158" label="#" click="playDTMF('#')"/>
-	<mx:Button x="154" y="68" label="Mic On" width="84" id="micToggle" click="startStopMicrophone()"/>
-	<mx:Button x="154" y="98" label="Clear" width="84" click="myDisplay.text=''"/>
-	<mx:Button x="154" y="128" label="Loopback" width="84" click="enableDisableLoopback()"/>
-	<mx:Button x="154" y="158" label="Load" width="84" toolTip="Disabled" enabled="false"/>
-	<mx:HSlider minimum="10" maximum="50" snapInterval="2" left="10" right="10" bottom="15" value="15" 
+	<s:TextInput id="myDisplay" height="50" text="" fontSize="32" textAlign="center"
+				  left="10" right="10" top="10"/>
+	<!--
+	borderStyle="inset"
+	-->
+	
+	<s:Button x="10" y="68" label="1" click="playDTMF('1')"/>
+	<s:Button x="58" y="68" label="2" click="playDTMF('2')"/>
+	<s:Button x="106" y="68" label="3" click="playDTMF('3')"/>
+	<s:Button x="10" y="98" label="4" click="playDTMF('4')"/>
+	<s:Button x="58" y="98" label="5" click="playDTMF('5')"/>
+	<s:Button x="106" y="98" label="6" click="playDTMF('6')"/>
+	<s:Button x="10" y="128" label="7" click="playDTMF('7')"/>
+	<s:Button x="58" y="128" label="8" click="playDTMF('8')"/>
+	<s:Button x="107" y="128" label="9" click="playDTMF('9')"/>
+	<s:Button x="10" y="158" label="*" click="playDTMF('*')"/>
+	<s:Button x="58" y="158" label="0" click="playDTMF('0')"/>
+	<s:Button x="106" y="158" label="#" click="playDTMF('#')"/>
+	<s:Button x="154" y="68" label="Mic On" width="84" id="micToggle" click="startStopMicrophone()"/>
+	<s:Button x="154" y="98" label="Clear" width="84" click="myDisplay.text=''"/>
+	<s:Button x="154" y="128" label="Loopback" width="84" click="enableDisableLoopback()"/>
+	<s:Button x="154" y="158" label="Load" width="84" toolTip="Disabled" enabled="false"/>
+	<s:HSlider minimum="10" maximum="50" snapInterval="2" left="10" right="10" bottom="15" value="15" 
 				id="sensitivity" toolTip="DTMF Tone Sensitivity"/>
 	
-</mx:WindowedApplication>
+</s:WindowedApplication>

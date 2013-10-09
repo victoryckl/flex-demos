@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   width="300" height="400" creationComplete="init()" xmlns:local="*">
+	<s:layout>
+		<s:VerticalLayout gap="6" horizontalAlign="center"/>
+	</s:layout>
+	<fx:Script>
+		<![CDATA[
+			import flash.display.Sprite;
+			import flash.media.SoundCodec;
+			
+			import fr.kikko.lab.ShineMP3Encoder;
+			
+			import org.as3wavsound.WavSound;
+			import org.bytearray.micrecorder.MicRecorder;
+			import org.bytearray.micrecorder.encoder.WaveEncoder;
+			import org.bytearray.micrecorder.events.RecordingEvent;
+			
+			private var micSprite:Sprite;
+			private var wavBytes:ByteArray;
+			private var mp3Bytes:ByteArray;
+			private var mic:Microphone;
+			private var micRecorder:MicRecorder;
+			private var wavEncoder:WaveEncoder;
+			private var wavSound:WavSound;
+			private var mp3Encoder:ShineMP3Encoder;
+			private var file:FileReference;
+			
+			private function init():void {
+				file = new FileReference();
+				
+				micSprite = new Sprite();
+				micActivity.addChild(micSprite);
+				
+				mic = Microphone.getMicrophone();
+				mic.codec = SoundCodec.NELLYMOSER;
+				mic.setLoopBack(false);
+				mic.addEventListener(SampleDataEvent.SAMPLE_DATA, micSampleDataHandler); 
+				mic.rate = 44;
+				
+				wavEncoder = new WaveEncoder();
+				micRecorder = new MicRecorder(wavEncoder, mic);
+				micRecorder.addEventListener(RecordingEvent.RECORDING, onRecording);
+				micRecorder.addEventListener(Event.COMPLETE, onComplete);
+				
+			}
+			
+			
+			//MIC ACTIVITY
+			private function micSampleDataHandler(e:SampleDataEvent):void {
+				var ba:ByteArray = new ByteArray();
+				ba = e.data;
+				
+				var a:Number = 0;
+				var n:Number = 0;
+				var i:int = 0;
+				micSprite.graphics.clear();
+				
+				micSprite.graphics.lineStyle(1, 0x880000, 1, true);
+				for(i=0; i<=256; i++) {
+					a = ba.readFloat();
+					n = a*micActivity.height;
+					if(i==0){
+						micSprite.graphics.moveTo(i*(micActivity.width/256), (n/2)+(micActivity.height/2));
+					}
+					if(i==256){
+						micSprite.graphics.lineTo(micActivity.width + 100, micActivity.height/2);
+					} else {
+						micSprite.graphics.lineTo(i*(micActivity.width/256), (n/2)+(micActivity.height/2));
+					}
+				}
+				micSprite.graphics.endFill();
+				
+			}
+			
+			
+			//RECORD
+			private function startRecording():void {
+				micRecorder.record();
+				stoBtn.enabled = true;
+			}
+			private function onRecording(e:RecordingEvent):void {
+				var date:Date = new Date(0, 0, 0, 0, 0, 0, e.time)
+				timeDisplay.text = "RECORDING: " + timeFormatter.format(date);
+			}
+			private function stopRecording():void {
+				micRecorder.stop();
+				preBtn.enabled = true;
+				encBtn.enabled = true;
+				wavBtn.enabled = true;
+			}
+			private function onComplete(e:Event):void {
+				mp3Bytes = new ByteArray();
+				wavBytes = new ByteArray();
+				
+				mp3Bytes = micRecorder.output;
+				wavBytes.writeBytes(mp3Bytes);
+				
+				wavSound = new WavSound(wavBytes);
+			}
+			
+			
+			
+			//WAV
+			private function wavPreview():void {
+				wavSound.play();
+			}
+			private function saveWAV():void {
+				file.save(wavBytes, "recording.wav");
+			}
+			
+			
+			
+			//MP3
+			private function encodeMP3():void {
+				encBtn.label = "Just a sec...";
+				mp3Encoder = new ShineMP3Encoder(mp3Bytes);
+				mp3Encoder.addEventListener(Event.COMPLETE, onEncodeComplete);
+				mp3Encoder.addEventListener(ProgressEvent.PROGRESS, onEncodeProgress);
+				mp3Encoder.addEventListener(ErrorEvent.ERROR, onEncodeError);
+				mp3Encoder.start();
+			}
+			private function onEncodeProgress(e:ProgressEvent):void {
+				encBtn.label = "Just a sec... " + e.bytesLoaded + "/" + e.bytesTotal;
+			}
+			private function onEncodeError(e:ErrorEvent):void {
+				encBtn.label = "DAMN!";
+			}
+			private function onEncodeComplete(e:Event):void {
+				encBtn.label = "MP3 Encoded!";
+				mp3Btn.enabled=true;
+			}
+			private function saveMP3():void {
+				file.save(mp3Encoder.mp3Data, "recording.mp3");
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<mx:DateFormatter id="timeFormatter" formatString="K:NN:SS" />
+	</fx:Declarations>
+	
+	<s:SpriteVisualElement id="micActivity" width="100%" height="80"/>
+	<s:Label id="timeDisplay" width="90%" fontSize="18" fontWeight="bold" textAlign="center"/>
+	<s:Button id="recBtn" width="90%" label="Record" click="startRecording()" color="#494949" fontSize="20"
+			  fontWeight="bold"/>
+	<s:Button id="stoBtn" width="90%" label="Stop" click="stopRecording()" color="#494949" enabled="false"
+			  fontSize="20" fontWeight="bold"/>
+	
+	<mx:HRule width="100%"/>
+	
+	<local:SpectrumDisplay width="100%" height="80"/>
+	<s:Button id="preBtn" width="90%" label="Preview" click="wavPreview()" color="#494949" enabled="false"
+			  fontSize="20" fontWeight="bold"/>
+	
+	<mx:HRule width="100%"/>
+	
+	<s:Button id="encBtn" width="90%" label="Encode MP3" click="encodeMP3()" color="#494949" enabled="false"
+			  fontSize="20" fontWeight="bold"/>
+	<s:Button id="wavBtn" width="90%" label="Save WAV" click="saveWAV()" color="#494949" enabled="false"
+			  fontSize="20" fontWeight="bold"/>
+	<s:Button id="mp3Btn" width="90%" label="Save MP3" click="saveMP3()" color="#494949" enabled="false"
+			  fontSize="20" fontWeight="bold"/>
+	
+</s:Application>

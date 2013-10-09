@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:SpriteVisualElement xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					   xmlns:s="library://ns.adobe.com/flex/spark" 
+					   xmlns:mx="library://ns.adobe.com/flex/mx" addedToStage="init()">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import flash.display.Bitmap;
+			import flash.display.BitmapData;
+			import flash.display.Sprite;
+			import flash.filters.BlurFilter;
+			import flash.media.SoundMixer;
+			import flash.media.SoundTransform;
+			import flash.utils.ByteArray;
+			
+			private var audioLoader:Sprite;
+			private var audioBitmapData:BitmapData;
+			private var audioBitmap:Bitmap;
+			private var audioBlur:BlurFilter;
+			private var soundByteArray:ByteArray;
+			private var spectrumWidth:int;
+			private var spectrumHeight:int;
+			
+			private function init():void {
+				spectrumWidth = this.width;
+				spectrumHeight = this.height;
+				audioLoader = new Sprite();
+				audioBitmapData = new BitmapData(this.width,this.height,true, 0x000000);
+				audioBitmap = new Bitmap(audioBitmapData);
+				soundByteArray = new ByteArray();
+				audioBlur = new BlurFilter();
+				//audioLoader.filters = [new BlurFilter(2,2)];
+				audioBitmap.alpha = 0.6;
+				this.addChild(audioBitmap);
+				this.addChild(audioLoader);
+				
+				this.addEventListener(Event.ENTER_FRAME, drawSpectrum);
+			}
+			
+			private function drawSpectrum(e:Event):void {
+				var a:Number = 0;
+				var i:int = 0;
+				var num:Number = 0;
+				var xPos:int = 0;
+				audioLoader.graphics.clear();
+				SoundMixer.computeSpectrum(soundByteArray, true, 0);
+				var st:Number = 4;
+				audioLoader.graphics.lineStyle(1,0xFFFFFF,1,true);
+				audioLoader.graphics.beginFill(0x440000, 0.8);
+				for(i=0; i<256; i+=2) {
+					a = soundByteArray.readFloat();
+					num = a*spectrumHeight;
+					audioLoader.graphics.drawRect(xPos, spectrumHeight, st, -num/2);
+					xPos+=st;
+				}
+				
+				audioBitmapData.draw(audioLoader);
+				audioBitmapData.applyFilter(audioBitmapData, audioBitmapData.rect, new Point(0,0), audioBlur);
+				audioBitmapData.scroll(0,-1);
+			}
+		]]>
+	</fx:Script>
+</s:SpriteVisualElement>

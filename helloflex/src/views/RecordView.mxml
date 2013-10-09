@@ -8,7 +8,8 @@
 	<fx:Declarations>
 		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
 	</fx:Declarations>
-	<s:Label text="page 1"/>
+	<s:Label text=" "/>
+	<s:Label id="label_support" text="支持录音"/>
 	
 	<fx:Script>
 		<![CDATA[
@@ -63,16 +64,17 @@
 		private function init():void {
 			_microphone = Microphone.getMicrophone();
 			if (_microphone==null) {
+				label_support.text="不支持录音";
 				return;
 			}
 			_timer.addEventListener(TimerEvent.TIMER, function (e:TimerEvent):void {});
 			_timer.addEventListener(TimerEvent.TIMER_COMPLETE, _stopRecordHandler);
-			_microphone.rate = 5;
-			_microphone.encodeQuality = 1;
-			_microphone.setUseEchoSuppression(true);
-			_microphone.setLoopBack(false);
-			_microphone.setSilenceLevel(0,0);
-			_microphone.gain=50;
+			_microphone.rate = 44;//麥克風擷取聲音的速率，以 kHz 為單位。
+			_microphone.encodeQuality = 1;//使用 Speex 轉碼器時的編碼語音品質。
+			_microphone.setUseEchoSuppression(true);//指定是否使用音效轉碼器的回音抑制功能。
+			_microphone.setLoopBack(false);//true-將麥克風擷取的音效遞送到本機喇叭。
+			_microphone.setSilenceLevel(0,0);//設定可認定為有聲的最低音量輸入水準，以及 (選擇性) 真正算是靜音前所需歷經的無聲時間長度。
+			_microphone.gain=50;//麥克風增量，也就是麥克風在傳輸前放大訊號時相乘的量。
 		}
 		private function _playRecordHandler(e:MouseEvent):void{
 			_recordByte.position = 0;
@@ -140,8 +142,9 @@
 	<fx:Declarations>
 		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
 	</fx:Declarations>
-	<s:Button id="start" x="72" y="69" label="开始" click="_startRecHandler(event)"/>
-	<s:Button id="end" x="72" y="143" label="结束" click="_stopRecordHandler(event)"/>
-	<s:Button id="save" x="72" y="225" label="保存" click="_saveWavHandler(event)"/>
-	<s:Button id="ting" x="72" y="291" label="听" click="_playRecordHandler(event)"/>
+	
+	<s:Button id="start" x="72" y="69"  width="200" label="开始" click="_startRecHandler(event)"/>
+	<s:Button id="end"   x="72" y="143" width="200" label="结束" click="_stopRecordHandler(event)"/>
+	<s:Button id="save"  x="72" y="225" width="200" label="保存" click="_saveWavHandler(event)"/>
+	<s:Button id="ting"  x="72" y="291" width="200" label="播放" click="_playRecordHandler(event)"/>
 </s:View>

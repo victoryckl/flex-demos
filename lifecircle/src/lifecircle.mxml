@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" applicationDPI="240"
+			   backgroundColor="#fcffff"
+			   color="#000000"
+			   fontSize="16"
+			   preinitialize="report(event, 'preinitialize')"
+			   initialize="report(event, 'initialize')"
+			   creationComplete="report(event, 'creationComplete')"
+			   applicationComplete="report(event, 'applicationComplete')">
+	<fx:Script>
+		<![CDATA[
+			import flash.utils.getTimer;
+			[Bindable]
+			public var outTextData:String="";
+			public function report(event:Event, value:String):void
+			{
+				outTextData += String(flash.utils.getTimer()) + 'ms >> '
+					+ event.currentTarget + '.' + value + '\n';
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<s:TextArea
+		id="outTextArea"
+		text="{outTextData}"
+		right="10" left="10" top="100" bottom="10" alpha="0.5"
+		wordSpacing="false"
+		initialize="report(event, 'initialize')"
+		creationComplete="report(event, 'creationComplete')"/>
+	<s:Button
+		y="10" height="60" left="168" width="150"
+		id="HelloButton"
+		label="Say Hello"
+		initialize="report(event, 'initialize')"
+		creationComplete="report(event, 'creationComplete')"
+		rollOver="report(event, 'rollOver')"
+		rollOut="report(event, 'rollOut')"
+		click="report(event, 'click > Hello!')"/>
+	<s:Button
+		id="GoodByeButton"
+		label="Say Goodbye"
+		y="10" left="10" height="60" width="150" color="#000000"
+		initialize="report(event, 'initialize')"
+		creationComplete="report(event, 'creationComplete')"
+		click="report(event, 'click > GoodBye!')"/>
+	<s:Button
+		id="ClearButton"
+		label="Clear"
+		y="10" left="326" height="60" right="10" color="#000000"
+		initialize="report( event , 'initialize' )"
+		creationComplete="report( event , 'creationComplete' )"
+		click="outTextData='';report( event , 'click' )"/>
+</s:Application>

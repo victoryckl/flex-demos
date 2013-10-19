@@ -58,7 +58,7 @@
 			{
 				// Center the pop-up in the parent container.
 				if (myAlert.isOpen) {
-					var min = screen.width < screen.height ? screen.width : screen.height;
+					var min:Number = screen.width < screen.height ? screen.width : screen.height;
 					
 					myAlert.width = min * 3.0 / 4;
 					myAlert.height = myAlert.width / 2.0;

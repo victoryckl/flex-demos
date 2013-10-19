@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="400" height="300" horizontalAlign="center" verticalAlign="middle">
+	<mx:Script>
+		<![CDATA[
+			import org.rjb.model.UserModelLocator;
+			import com.adobe.cairngorm.control.CairngormEventDispatcher;
+			import org.rjb.event.LoginEvent;
+			import org.rjb.vo.UserVO;
+			[Bindable]
+			private var modelLovator:UserModelLocator=UserModelLocator.getInstance();
+			//提交的出来方法
+			private function submit():void{
+				var userVO:UserVO=new UserVO;
+				userVO.userName=this.userName.text;
+				userVO.password=this.password.text;
+				var loginEvent:LoginEvent=new LoginEvent(userVO);
+				CairngormEventDispatcher.getInstance().dispatchEvent(loginEvent);
+			}
+			//重置的出来方法
+			private function reset():void{
+				this.userName.text="";
+				this.password.text="";
+			}
+			//返回的处理方法
+			private function returnToLogin():void{
+				this.currentState="";
+				modelLovator.state="User---Login";
+				reset();
+			}
+		]]>
+	</mx:Script>
+	<mx:states>
+		<mx:State name="success">
+			<mx:RemoveChild target="{form1}"/>
+			<mx:AddChild position="lastChild" relativeTo="{vbox1}">
+				<mx:Text text="LOGIN SUCCESS&#xa;" horizontalCenter="0" verticalCenter="35" fontFamily="Courier New" fontSize="36" color="#EC175D" id="text1"/>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild" relativeTo="{vbox1}">
+				<mx:Button x="220" y="205" label="return" click="returnToLogin()"/>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="fail">
+			<mx:RemoveChild target="{form1}"/>
+			<mx:AddChild position="lastChild" relativeTo="{vbox1}">
+				<mx:Text text="FAIL LOGIN&#xa;" fontSize="36" fontFamily="Georgia" color="#0F19E2" horizontalCenter="0" verticalCenter="0"/>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild" relativeTo="{vbox1}">
+				<mx:Button x="232" y="188" label="return" click="returnToLogin()"/>
+			</mx:AddChild>
+		</mx:State>
+	</mx:states>
+	<mx:VBox horizontalAlign="center" verticalAlign="middle" horizontalCenter="0" verticalCenter="0" id="vbox1">
+		<mx:Text fontSize="18" text="{modelLovator.state}" enabled="true" id="info"/>
+		<mx:Form horizontalCenter="4" verticalCenter="1" id="form1">
+			<mx:FormItem label="username:" horizontalAlign="center" required="true">
+				<mx:TextInput id="userName" text="ljp"/>
+			</mx:FormItem>
+			<mx:FormItem label="password:" horizontalAlign="center" required="true">
+				<mx:TextInput displayAsPassword="true" id="password" text="pass"/>
+			</mx:FormItem>
+			<mx:FormItem>
+			    <mx:HBox>
+			    	<mx:Button label="submit" click="submit()"/>
+			    	<mx:Button label="reset" click="reset()"/>
+			    </mx:HBox>
+	
+			</mx:FormItem>	  
+		</mx:Form>
+	</mx:VBox>
+</mx:Panel>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   applicationDPI="240"
+			   xmlns:view="org.rjb.view.*"
+			   xmlns:control="org.rjb.control.*">
+	
+	<s:layout>
+		<s:BasicLayout/>
+	</s:layout>
+	<view:LoginPanel id="loginPanel"  verticalCenter="0" horizontalCenter="0"/>
+	<fx:Declarations>
+		<control:LoginControl id="control" />
+	</fx:Declarations>
+	
+</s:Application>

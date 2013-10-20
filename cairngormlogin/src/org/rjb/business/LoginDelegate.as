@@ -12,7 +12,7 @@ package org.rjb.business
 		}
 		public function login(userVO:UserVO):void{
 			var result:Object;
-			if(userVO.userName=="ljp"&&userVO.password=="pass"){
+			if(userVO.userName=="root"&&userVO.password=="123"){
 				result="OK";
 			}else{
 				result="Fail";

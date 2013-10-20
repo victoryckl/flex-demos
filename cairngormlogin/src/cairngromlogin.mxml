@@ -5,9 +5,6 @@
 			   xmlns:view="org.rjb.view.*"
 			   xmlns:control="org.rjb.control.*">
 	
-	<s:layout>
-		<s:BasicLayout/>
-	</s:layout>
 	<view:LoginPanel id="loginPanel"  verticalCenter="0" horizontalCenter="0"/>
 	<fx:Declarations>
 		<control:LoginControl id="control" />

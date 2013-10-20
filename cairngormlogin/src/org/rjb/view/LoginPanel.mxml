@@ -3,12 +3,16 @@
 	xmlns:fx="http://ns.adobe.com/mxml/2009"
 	xmlns:s="library://ns.adobe.com/flex/spark"
 	xmlns:mx="library://ns.adobe.com/flex/halo"
-	width="400" height="300" >
+	width="400" height="300"
+	initialize="panel1_initializeHandler(event)" xmlns:mx1="library://ns.adobe.com/flex/mx">
 	<fx:Script>
 		<![CDATA[
-			import org.rjb.model.UserModelLocator;
 			import com.adobe.cairngorm.control.CairngormEventDispatcher;
+			
+			import mx.events.FlexEvent;
+			
 			import org.rjb.event.LoginEvent;
+			import org.rjb.model.UserModelLocator;
 			import org.rjb.vo.UserVO;
 			[Bindable]
 			private var modelLovator:UserModelLocator=UserModelLocator.getInstance();
@@ -27,43 +31,55 @@
 			}
 			//返回的处理方法
 			private function returnToLogin():void{
-				this.currentState="";
+				this.currentState="login";
 				modelLovator.state="User---Login";
 				reset();
 			}
+			
+			protected function panel1_initializeHandler(event:FlexEvent):void
+			{
+				this.currentState = "login";
+			}
+			
 		]]>
 	</fx:Script>
 	<s:states>
+		<s:State name="login"/>
 		<s:State name="success" />
 		<s:State name="fail" />
 	</s:states>
 	
-	<fx:Declarations>
-		<s:VGroup horizontalAlign="center" verticalAlign="middle" horizontalCenter="0" verticalCenter="0" id="vbox1">
-			<s:Label fontSize="18" text="{modelLovator.state}" enabled="true" id="info"/>
-			<s:Label text="LOGIN SUCCESS&#xa;" 
-					 horizontalCenter="0" verticalCenter="35" 
-					 fontFamily="Courier New" fontSize="36" color="#EC175D" 
-					 id="text1"
-					 includeIn="success"/>
-			<s:Button x="220" y="205" label="return" click="returnToLogin()" includeIn="success"/>
-			<s:Label text="FAIL LOGIN&#xa;" fontSize="36" fontFamily="Georgia" color="#0F19E2" horizontalCenter="0" verticalCenter="0" includeIn="fail"/>
-			<s:Button x="232" y="188" label="return" click="returnToLogin()" includeIn="fail"/>
-			<s:Form horizontalCenter="4" verticalCenter="1" id="form1" excludeFrom="success,fail">
-				<s:FormItem label="username:" required="true">
-					<s:TextInput id="userName" text="ljp"/>
-				</s:FormItem>
-				<s:FormItem label="password:" required="true">
-					<s:TextInput displayAsPassword="true" id="password" text="pass"/>
-				</s:FormItem>
-				<s:FormItem>
-					<s:HGroup>
-						<s:Button label="submit" click="submit()"/>
-						<s:Button label="reset" click="reset()"/>
-					</s:HGroup>
-					
-				</s:FormItem>	  
-			</s:Form>
-		</s:VGroup>
-	</fx:Declarations>
+	<s:VGroup horizontalAlign="center" horizontalCenter="0" verticalCenter="0" id="vbox1" width="100%" includeIn="login">
+		<s:HGroup verticalAlign="middle">
+			<s:Label text="username:" fontStyle="italic"/>
+			<s:TextInput id="userName" text="root" width="200"/>
+		</s:HGroup>
+		<s:HGroup verticalAlign="middle">
+			<s:Label text="password:"/>
+			<s:TextInput id="password" text="123" width="200" displayAsPassword="true"/>
+		</s:HGroup>
+		<s:HGroup verticalAlign="middle">
+			<s:Button label="submit" click="submit()"/>
+			<s:Button label="reset" click="reset()"/>
+		</s:HGroup>
+	</s:VGroup>
+	
+	<s:Label horizontalCenter="0" verticalCenter="-75" 
+			 fontSize="18" text="{modelLovator.state}" enabled="true" id="info" excludeFrom="login"/>
+	
+	<s:VGroup horizontalAlign="center" horizontalCenter="0" verticalCenter="0" width="100%" includeIn="success">
+		<s:Label text="LOGIN SUCCESS&#xa;" 
+				 horizontalCenter="0" verticalCenter="0" 
+				 fontFamily="Courier New" fontSize="36" color="#EC175D" 
+				 id="text1"/>
+		<s:Button horizontalCenter="0" verticalCenter="65" label="return" click="returnToLogin()"/>
+	</s:VGroup>
+	
+	<s:VGroup horizontalAlign="center" horizontalCenter="0" verticalCenter="0" width="100%" includeIn="fail">
+		<s:Label text="FAIL LOGIN&#xa;"
+				 horizontalCenter="0" verticalCenter="0"
+				 fontSize="36" fontFamily="Georgia" color="#0F19E2"/>
+		<s:Button horizontalCenter="0" verticalCenter="65"
+				  label="return" click="returnToLogin()"/>
+	</s:VGroup>
 </s:Panel>

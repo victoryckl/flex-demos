@@ -1,22 +1,42 @@
-<?xml version="1.0" encoding="utf-8"?>
-<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
-			   xmlns:s="library://ns.adobe.com/flex/spark" applicationDPI="240"
-			   creationComplete="initApp(event)">
-	<fx:Script>
-		<![CDATA[
-			import mx.events.FlexEvent;
-			import mx.managers.CursorManager;
-			import model.ModelLocator;
-			
-			
-			protected function initApp(event:FlexEvent):void
-			{
-				currentState = "Login";
-			}
-			
-		]]>
-	</fx:Script>
-	<fx:Declarations>
-		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
-	</fx:Declarations>
-</s:Application>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/halo">
+	<s:layout>
+		<s:BasicLayout/>
+	</s:layout>
+	
+	<s:states>
+		<s:State name="default"/>
+		<s:State name="Register"/>
+	</s:states>
+	
+	<!-- Set title of the Panel container based on the view state.-->
+	<s:Panel id="loginPanel" title="Login" width="500" horizontalCenter="0" verticalCenter="0"
+			 title.Register="Register">
+		<s:layout>
+			<s:VerticalLayout/>
+		</s:layout>
+		<s:Form id="loginForm" width="490">
+			<s:FormItem label="Username:" width="480">
+				<s:TextInput width="300"/>
+			</s:FormItem>
+			<s:FormItem label="Password:" width="480">
+				<s:TextInput width="300"/>
+			</s:FormItem>
+			<s:FormItem id="confirm" includeIn="Register" label="Confirm:">
+				<!-- Add a TextInput control to the form for the Register view state. -->
+				<s:TextInput width="300"/>
+			</s:FormItem>
+			<s:FormItem direction="ltr">
+				<!-- Use the LinkButton to change view state.-->
+				<s:Spacer id="spacer1" width="100%"/>
+				<!-- Set label of the control based on the view state.-->
+				<s:Button id="registerLink" label="Need to Register?"
+						   click="currentState='Register'"
+						   label.Register="Return to Login" click.Register="currentState=''"/>
+				<s:Button id="loginButton" label="Login"
+						  label.Register="Register"/>
+			</s:FormItem>
+		</s:Form>
+	</s:Panel>
+</s:Application> 

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" title="锚定组件的中心">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<s:Panel x="41" y="27" width="400" height="300">  
+		<s:Button horizontalCenter="-80" verticalCenter="-80" label="按钮1"/>  
+		<s:Button horizontalCenter="0" verticalCenter="0" label="按钮2"/>  
+		<s:Button horizontalCenter="80" verticalCenter="80" label="按钮3"/>  
+	</s:Panel>
+</s:View>

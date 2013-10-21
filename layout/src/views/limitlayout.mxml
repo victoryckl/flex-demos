@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" title="使用基于限制的布局">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<s:Panel x="41" y="27" width="250" height="200">  
+		<s:Button top="50" bottom="50" left="50" right="50" label="按钮"/>  
+	</s:Panel>
+</s:View>

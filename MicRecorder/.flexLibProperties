@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<flexLibProperties includeAllClasses="true" version="3">
+  <includeClasses>
+    <classEntry path="org.bytearray.micrecorder.MicRecorder"/>
+    <classEntry path="org.bytearray.micrecorder.events.RecordingEvent"/>
+    <classEntry path="org.bytearray.micrecorder.IEncoder"/>
+  </includeClasses>
+  <includeResources/>
+  <namespaceManifests/>
+</flexLibProperties>

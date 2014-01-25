@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		title="Your message..."
+		creationComplete="onCreationComplete()">
+	
+	<fx:Script>
+		<![CDATA[
+			protected function onCreationComplete():void {
+				messageTxt.text = "Hello World, \n\n" +
+					"My name is " + data.name
+					+", and I live in " + data.location
+					+"...";
+			}
+		]]>
+	</fx:Script>
+	
+	<s:Label 
+		id="messageTxt" 
+		left="20" 
+		right="20" 
+		top="20" 
+		height="100%" 
+		text="标签"/>
+</s:View>

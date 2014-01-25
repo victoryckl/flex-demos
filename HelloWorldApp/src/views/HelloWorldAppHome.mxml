@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" title="主页视图">
+	
+	<fx:Script>
+		<![CDATA[
+			protected function onSubmit():void
+			{
+				var dObj:Object = 
+				{
+					name:nameTxt.text,
+					location:locationTxt.text
+				}
+				navigator.pushView(views.HelloWorldAppMessageView, dObj);
+			}
+		]]>
+	</fx:Script>
+	
+	<s:Label 
+		x="45"
+		y="33"
+		width="289"
+		height="26"
+		text="My name is:"/>
+	<s:Label 
+		x="45"
+		y="178"
+		width="289"
+		height="26"
+		text="I live in:"/>
+	<s:TextInput 
+		id="nameTxt"
+		x="45"
+		y="70"
+		width="350"
+		prompt="Enter a name here..."/>
+	<s:TextInput
+		id="locationTxt"
+		x="45"
+		y="237"
+		width="350"
+		prompt="Enter location here..."/>
+	<s:Button 
+		x="45" 
+		y="369" 
+		label="Submit" 
+		click="onSubmit()"/>
+</s:View>

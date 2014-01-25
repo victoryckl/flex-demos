@@ -1,10 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:ViewNavigatorApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
-							xmlns:s="library://ns.adobe.com/flex/spark" 
-							firstView="views.HelloWorldAppHome" 
-							applicationDPI="240">
+<s:ViewNavigatorApplication xmlns:fx="http://ns.adobe.com/mxml/2009"
+							xmlns:s="library://ns.adobe.com/flex/spark"
+							applicationDPI="240" 
+							firstView="views.HelloWorldAppHome">
 	<fx:Style source="HelloWorldApp.css"/>
 	<fx:Declarations>
 		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
 	</fx:Declarations>
+	<s:navigationContent>
+		<s:Button label="Home"
+				  click="navigator.popToFirstView()"/>
+	</s:navigationContent>
+	<s:actionContent>
+		<s:Button label="Search"/>
+	</s:actionContent>
+	<s:titleContent>
+		<s:HGroup top="10" bottom="-65" width="619" horizontalCenter="329" verticalCenter="33">
+			<s:TextInput width="185" />
+		</s:HGroup>
+	</s:titleContent>
 </s:ViewNavigatorApplication>

@@ -13,6 +13,12 @@
 				}
 				navigator.pushView(views.HelloWorldAppMessageView, dObj);
 			}
+			
+			protected function onClean():void 
+			{
+				nameTxt.text = "";
+				locationTxt.text = "";
+			}
 		]]>
 	</fx:Script>
 	
@@ -45,4 +51,10 @@
 		y="369" 
 		label="Submit" 
 		click="onSubmit()"/>
+	<s:Button 
+		x="236" 
+		y="369" 
+		width="133" 
+		label="Clean"
+		click="onClean()"/>
 </s:View>

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark"
+		actionBarVisible="false"
+		tabBarVisible="false"
+		creationComplete="onCreationComplete()"
+		title="主页视图">
+	<fx:Declarations>
+		<s:State name="portrait"/>
+		<s:State name="landscape"/>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			private static const BLUE:int = 0x3399ff;
+			private static const GREEN:int = 0x99cc00;
+			private static const YELLOW:int = 0xffcc00;
+			private static const RED:int = 0xff3333;
+			
+			private function onCreationComplete():void {
+				this.addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
+			}
+			
+			private function onAddedToStage(e:Event):void {
+				stage.addEventListener(StageOrientationEvent.ORIENTATION_CHANGE,
+								onOrientationChange);
+				sizeComponts(systemManager.screen.width, systemManager.screen.height);
+			}
+			
+			private function onOrientationChange(e:StageOrientationEvent):void {
+				sizeComponts(systemManager.screen.width, systemManager.screen.height);
+			}
+			
+			private function sizeComponts(w:int, h:int):void {
+				trace("sizeComponts()");
+				if (w < h) {
+					currentState = "portrait";
+					
+					a.width = w/2;
+					a.height = h/3;
+					
+					b.width = w/2;
+					b.height = h/3;
+					
+					c.width = w;
+					c.height = h - h/3 - h/6;
+					
+					d.width = w;
+					d.height = h/6;
+				} else {
+					currentState = "landscape";
+					
+					d.width = w;
+					d.height = h/6;
+					
+					a.width = w/2;
+					a.height = (h - d.height) / 2;
+					
+					b.width = a.width;
+					b.height = a.height;
+					
+					c.width = a.width;
+					c.height = h - d.height;
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	<s:Group>
+		<s:layout.portrait>
+			<s:VerticalLayout gap="0"/>
+		</s:layout.portrait>
+		<s:layout.landscape>
+			<s:VerticalLayout gap="0"/>
+		</s:layout.landscape>
+		<s:Group>
+			<s:layout.portrait>
+				<s:VerticalLayout gap="0"/>
+			</s:layout.portrait>
+			<s:layout.landscape>
+				<s:HorizontalLayout gap="0"/>
+			</s:layout.landscape>
+			<s:Group>
+				<s:layout.portrait>
+					<s:HorizontalLayout gap="0"/>
+				</s:layout.portrait>
+				<s:layout.landscape>
+					<s:VerticalLayout gap="0"/>
+				</s:layout.landscape>
+				<s:Graphic>
+					<s:Rect id="a">
+						<s:fill>
+							<s:SolidColor color="{BLUE}"/>
+						</s:fill>
+					</s:Rect>
+				</s:Graphic>
+				<s:Graphic>
+					<s:Rect id="b">
+						<s:fill>
+							<s:SolidColor color="{GREEN}"/>
+						</s:fill>
+					</s:Rect>
+				</s:Graphic>
+			</s:Group>
+			<s:Graphic>
+				<s:Rect id="c">
+					<s:fill>
+						<s:SolidColor color="{YELLOW}"/>
+					</s:fill>
+				</s:Rect>
+			</s:Graphic>
+		</s:Group>
+		<s:Graphic>
+			<s:Rect id="d">
+				<s:fill>
+					<s:SolidColor color="{RED}"/>
+				</s:fill>
+			</s:Rect>
+		</s:Graphic>
+	</s:Group>
+</s:View>

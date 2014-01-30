@@ -53,6 +53,21 @@
 			private function folderView():void {
 				navigator.pushView(views.FolderView, selectedDirectory);
 			}
+			
+			//---------------------
+			private function selectMedia(fileObj:File):void {
+				var filter:FileFilter;
+				filter = new FileFilter("JPEG Files", "*.jpg");
+				
+				fileObj.addEventListener(FileListEvent.SELECT_MULTIPLE, onSelect);
+				fileObj.browseForOpenMultiple("Select 2 image files...", [filter]);
+			}
+			
+			private function onSelect(e:Event):void {
+				if (e is FileListEvent) {
+					navigator.pushView(views.ImagesView, FileListEvent(e).files);
+				}
+			}
 		]]>
 	</fx:Script>
 	
@@ -81,6 +96,14 @@
 		selectionColor="#00A2FF"
 		selectedIndex="0"
 		click="readDir()"/>
+	<s:HGroup
+		width="100%"
+		horizontalAlign="center">
+		<s:Button height="55"
+				  label="Open multiple media"
+				  click="selectMedia(selectedDirectory)"
+				  fontSize="24"/>
+	</s:HGroup>
 	<s:HGroup 
 		id="buttonContainer" 
 		width="100%" 

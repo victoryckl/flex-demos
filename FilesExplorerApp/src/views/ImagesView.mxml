@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		title="Selected Files..."
+		creationComplete="onCreationComplete()">
+	<fx:Script>
+		<![CDATA[
+			private function onCreationComplete():void {
+				var selectedFiles:Array = data as Array;
+				var fileObj:File;
+				
+				for (var i:int = 0; i < 2; i++) {
+					fileObj = selectedFiles[i];
+					if (fileObj.exists) {
+						displayImage(fileObj.url, this["img"+i]);
+					}
+				}
+			}
+			
+			private function displayImage(url:String, img:Image):void {
+				img.source = url;
+			}
+			
+			private function back():void {
+				navigator.pushView(views.FilesExplorerAppView);
+			}
+		]]>
+	</fx:Script>
+	<s:navigationContent>
+		<s:Button label="Back"
+				  click="back()"/>
+	</s:navigationContent>
+	<s:VGroup left="10" right="10" top="10" bottom="10">
+		<s:Image id="img0"/>
+		<s:Image id="img1"/>
+	</s:VGroup>
+</s:View>

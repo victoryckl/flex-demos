@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ViewNavigatorApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
+							xmlns:s="library://ns.adobe.com/flex/spark" 
+							firstView="views.FilesExplorerAppView" 
+							applicationDPI="160">
+	<fx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+		s|View {
+			backgroundColor:#999999;
+			color:#393939;
+		}
+		s|Label {
+			fontSize:22;
+		}
+		s|List {
+			alternatingItemColors: #CCCCCC, #EEEEEE;
+			selectionColor:yellow;
+			fontSize:22;
+			color:#393939;
+		}
+	</fx:Style>
+</s:ViewNavigatorApplication>

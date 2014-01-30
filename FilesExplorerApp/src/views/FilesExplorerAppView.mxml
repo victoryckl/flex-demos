@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		title="Files Explorer"
+		creationComplete="readDir()">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			
+			private var dirData:Array;
+			private var selectedDirectory:File;
+			
+			private function readDir():void {
+				if (dirData) {
+					selectedDirectory = dirData[dirList.selectedIndex];
+				} else {
+					selectedDirectory = File.documentsDirectory;
+				}
+				currentDirectory.text = selectedDirectory.nativePath;
+				
+				var docsDirectory:Array = selectedDirectory.getDirectoryListing();
+				
+				var fileObj:File;
+				dirData = [];
+				dirList.dataProvider = new ArrayCollection();
+				
+				setParentDir();
+				for (var i:int = 0; i < docsDirectory.length; i++) {
+					fileObj = docsDirectory[i];
+					if (fileObj.isDirectory) {
+						dirData.push(fileObj);
+						dirList.dataProvider.addItem({label:fileObj.name});
+					}
+				}
+			}
+			
+			private function setParentDir():void {
+				var fileObj:File = selectedDirectory.parent;
+				if (fileObj) {
+					dirData.push(fileObj);
+					dirList.dataProvider.addItem({label:"[..]"});
+				}
+			}
+			
+			private function exit():void {
+				NativeApplication.nativeApplication.exit();
+			}
+			
+			private function fileView():void {
+				navigator.pushView(views.FileView, selectedDirectory);
+			}
+			
+			private function folderView():void {
+				navigator.pushView(views.FolderView, selectedDirectory);
+			}
+		]]>
+	</fx:Script>
+	
+	<s:layout>
+		<s:VerticalLayout/>
+	</s:layout>
+	
+	<s:navigationContent>
+		<s:Button label="Quit"
+				  click="exit()"/>
+	</s:navigationContent>
+	
+	<s:Label id="currentDirectory" 
+			 width="100%" 
+			 height="50" 
+			 paddingLeft="10" 
+			 paddingTop="15"
+			 text="Current Directory"
+			 verticalAlign="middle"/>
+	<s:List
+		id="dirList"
+		width="100%" 
+		height="80%"
+		fontFamily="Arial"
+		contentBackgroundColor="#B6B3B3"
+		selectionColor="#00A2FF"
+		selectedIndex="0"
+		click="readDir()"/>
+	<s:HGroup 
+		id="buttonContainer" 
+		width="100%" 
+		height="70" 
+		horizontalAlign="center"
+		paddingBottom="10" 
+		paddingTop="10">
+		<s:Button 
+			id="folderBtn"
+			click="folderView()"
+			label="new Folder"
+			height="55"
+			fontSize="24"/>
+		<s:Button 
+			id="fileBtn"
+			click="fileView()"
+			label="new File"
+			height="55"
+			fontSize="24"/>
+	</s:HGroup>
+</s:View>

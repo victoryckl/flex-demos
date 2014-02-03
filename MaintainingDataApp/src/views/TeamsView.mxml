@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		title="Teams View"
+		viewActivate="onViewActivate()">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.core.FlexGlobals;
+			private var sqlConnection:SQLConnection;
+			
+			private function onViewActivate():void {
+				selectTeams();
+			}
+			
+			private function selectTeams():void {
+				trace("selectTeams(), sqlConnection: " + sqlConnection);
+				
+				sqlConnection = SQLConnection(data);
+				
+				var sqlText:String = "SELECT * FROM Teams " +
+									 "INNER JOIN Drivers " +
+									 "ON Teams.TEAM_ID = Drivers.TEAM_ID";
+				
+				var selectAllSQL:SQLStatement = new SQLStatement();
+				selectAllSQL.addEventListener(SQLEvent.RESULT, onSelectTeams);
+				selectAllSQL.addEventListener(SQLErrorEvent.ERROR, onSQLError);
+				selectAllSQL.sqlConnection = sqlConnection;
+				selectAllSQL.text = sqlText;
+				selectAllSQL.execute();
+			}
+			
+			private function onSelectTeams(e:SQLEvent):void {
+				var selectTeamSQL:SQLStatement = SQLStatement(e.target);
+				var result:SQLResult = selectTeamSQL.getResult();
+				
+				trace("onSelectTeams(), result.complete: " + result.complete);
+				if (result.complete) {
+					if (result.data) {
+						teamsList.dataProvider = new ArrayCollection();
+						
+						var tStr:String;
+						var dStr:String;
+						for each(var team:Object in result.data) {
+							var obj:Object = {
+								teamName:team["TNAME"],
+								teamId:team["TEAM_ID"]
+							};
+							
+							trace("teamName:" + obj.teamName+", teamId:"+obj.teamId+", DNAME: "+team["DNAME"]);
+							
+							if (tStr == obj.teamName) {
+								obj.drivers = dStr + "," + team["DNAME"];
+								teamsList.dataProvider.addItem(obj);
+							} else {
+								dStr = team["DNAME"];
+								tStr = obj.teamName;
+							}
+						}
+					}
+				}
+			}
+			
+			private function onSQLError(e:SQLErrorEvent):void {
+				trace("onSQLError(): "+e.error.message +"\n"+e.error.details);
+				dbStatus.text = e.error.message + e.error.details;
+			}
+			
+			private function addTeam():void {
+				var dataObj:Object = {
+					sqlConnection:sqlConnection,
+					sqlType:"INSERT"
+				};
+				navigator.pushView(views.UpdateTeamView, dataObj);
+			}
+			
+			private function updateTeam(i:int):void {
+				if (i == -1) {
+					trace("not select item");
+					return ;
+				}
+				var teamObj:Object = teamsList.dataProvider.getItemAt(i);
+				var dataObj:Object = {
+					sqlConnection:sqlConnection,
+					teamId:teamObj.teamId,
+					teamName:teamObj.teamName,
+					sqlType:"UPDATE"
+				};
+				navigator.pushView(views.UpdateTeamView, dataObj);
+			}
+			
+			private function toggleMenu(toggle:Boolean):void {
+				if (teamsList.selectedIndex == -1) {
+					trace("not select item");
+					toggle = false;
+				}
+				mx.core.FlexGlobals.topLevelApplication.viewMenuOpen = toggle;
+			}
+			
+			private function deleteTeam(i:int):void {
+				if (i == -1) {
+					trace("not select item");
+					return ;
+				}
+				trace("deleteTeam() i: " + i);
+				var teamObj:Object = teamsList.dataProvider.getItemAt(i);
+				var sqlText:String = "DELETE FROM Teams WHERE TEAM_ID = :teamId";
+				var deleteTeamSQL:SQLStatement = new SQLStatement();
+				deleteTeamSQL.addEventListener(SQLEvent.RESULT, onDeleteTeam);
+				deleteTeamSQL.addEventListener(SQLErrorEvent.ERROR, onSQLError);
+				deleteTeamSQL.sqlConnection = sqlConnection;
+				deleteTeamSQL.text = sqlText;
+				deleteTeamSQL.parameters[":teamId"] = teamObj.teamId;
+				deleteTeamSQL.execute();
+			}
+			
+			private function onDeleteTeam(e:SQLEvent):void {
+				deleteDrivers(e.target.parameters[":teamId"]);
+			}
+			
+			private function deleteDrivers(teamId:Number):void {
+				trace("deleteDrivers(), teamId: " + teamId);
+				var sqlText:String = "DELETE FROM Drivers WHERE TEAM_ID = :teamId";
+				var deleteDriversSQL:SQLStatement = new SQLStatement();
+				deleteDriversSQL.addEventListener(SQLEvent.RESULT, onDeleteDrivers);
+				deleteDriversSQL.addEventListener(SQLErrorEvent.ERROR, onSQLError);
+				deleteDriversSQL.sqlConnection = sqlConnection;
+				deleteDriversSQL.text = sqlText;
+				deleteDriversSQL.parameters[":teamId"] = teamId;
+				deleteDriversSQL.execute();
+			}
+			
+			private function onDeleteDrivers(e:SQLEvent):void {
+				trace("onDeleteDrivers()");
+				dbStatus.text = "The record was deleted successfully";
+				selectTeams();
+			}
+			
+		]]>
+	</fx:Script>
+	<s:layout>
+		<s:VerticalLayout paddingLeft="20"
+						  paddingRight="20"
+						  paddingTop="20"
+						  paddingBottom="20"/>
+	</s:layout>
+	<s:navigationContent>
+		<s:Button label="Back"
+				  click="navigator.popView()"/>
+	</s:navigationContent>
+	<s:Label id="dbStatus"
+			 width="100%"
+			 height="40"
+			 color="#454545"
+			 text="Teams retrieved from the database..."
+			 verticalAlign="middle"/>
+	
+	<s:Label width="100%"
+			 height="50"
+			 fontSize="14"
+			 text="SELECT * FROM Teams INNER JOIN Drivers ON Teams.TEAM_ID = Drivers.TEAM_ID"
+			 verticalAlign="middle"/>
+	
+	<s:List id="teamsList"
+			itemRenderer="views.TeamItemRenderer"
+			click="toggleMenu(true)"
+			width="100%"
+			height="55%"
+			enabled="true"
+			selectedIndex="0"/>
+	
+	<s:HGroup width="100%"
+			  height="50"
+			  gap="16">
+		<s:Button click="addTeam()"
+				  height="50"
+				  label="Add new Team"/>
+	</s:HGroup>
+	
+	<s:viewMenuItems>
+		<s:ViewMenuItem label="Update"
+						focusColor="#51B22F"
+						click="updateTeam(teamsList.selectedIndex)"/>
+		<s:ViewMenuItem label="Cancel"
+						click="toggleMenu(false)"/>
+		<s:ViewMenuItem label="Delete"
+						focusColor="#CB0909"
+						click="deleteTeam(teamsList.selectedIndex)"/>
+	</s:viewMenuItems>
+</s:View>

@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		title="Maintaining Data App"
+		creationComplete="onCreationComplete()">
+	<fx:Script>
+		<![CDATA[
+			import air.net.URLMonitor;
+			
+			import flash.data.SQLConnection;
+			import flash.events.SQLErrorEvent;
+			import flash.events.SQLEvent;
+			import flash.filesystem.File;
+			import flash.net.URLLoader;
+			import flash.net.URLRequest;
+			
+			import flashx.textLayout.tlf_internal;
+			
+			private var urlMonitor:URLMonitor;
+			private var urlLoader:URLLoader;
+			private var urlRequest:URLRequest;
+			private var sqlConnection:SQLConnection;
+			private var db:File;
+			
+			private function onCreationComplete():void {
+				trace("onCreationComplete()");
+				urlRequest = new URLRequest("http://www.baidu.com");
+//				urlRequest = new URLRequest("http://localhost/wrox/ch8/data.txt");
+				
+				urlMonitor = new URLMonitor(urlRequest);
+				urlMonitor.addEventListener(StatusEvent.STATUS, onStatus);
+				urlMonitor.start();
+				
+				updateBtnStatus();
+			}
+			
+			private function onStatus(e:StatusEvent):void {
+				urlStatus.text = e.code;
+				if (e.code == "Service.available") {
+					urlLoader = new URLLoader();
+					urlLoader.addEventListener(Event.COMPLETE, onLoadComplete);
+					urlLoader.load(urlRequest);
+				} else {
+					dataResult.text = "";
+				}
+			}
+			
+			private function onLoadComplete(e:Event):void {
+				dataResult.text = urlLoader.data;
+			}
+			
+			//--------------------------
+			private function openDb():void {
+				db = File.applicationStorageDirectory.resolvePath("teams.db");
+				trace(File.applicationStorageDirectory.nativePath);
+				sqlConnection = new SQLConnection();
+				sqlConnection.addEventListener(SQLErrorEvent.ERROR, onSQLError);
+				if (db.exists) {
+					sqlConnection.addEventListener(SQLEvent.OPEN, onOpenDb);
+				} else {
+					sqlConnection.addEventListener(SQLEvent.OPEN, onCreateDb);
+				}
+				dbPath.text = db.nativePath;
+				sqlConnection.openAsync(db);
+				dbBtn.enabled = false;
+			}
+			
+			private function onCreateDb(e:SQLEvent):void {
+				dbStatus.text = "The database was created...";
+				createTeamsTable();
+			}
+			private function onOpenDb(e:SQLEvent):void {
+				dbStatus.text = "The database was opened...";
+//				if (SQLConnection(e.target).connected) {
+//					viewBtn.visible = true;
+//				}
+//				dbBtn.enabled = false;
+				updateBtnStatus();
+			}
+			private function onSQLError(e:SQLErrorEvent):void {
+				var err:String = "Error id:"
+							   + e.error.errorID
+							   + "\nDetails:"
+							   + e.error.details;
+				dbStatus.text = err += "Error";
+//				dbBtn.enabled = false;
+				updateBtnStatus();
+			}
+			
+			//--------------------------
+			private function createTeamsTable():void {
+				var sqlText:String = "CREATE TABLE "
+								   + "Teams(TEAM_ID INTEGER PRIMARY KEY,"
+								   + "TNAME TEXT)";
+				var createTableSQL:SQLStatement = new SQLStatement();
+				createTableSQL.addEventListener(SQLEvent.RESULT, onTeamsTable);
+				createTableSQL.addEventListener(SQLErrorEvent.ERROR, onSQLError);
+				createTableSQL.sqlConnection = sqlConnection;
+				createTableSQL.text = sqlText;
+				createTableSQL.execute();
+			}
+			
+			private function onTeamsTable(e:SQLEvent):void {
+				dbStatus.text = "The Teams table was created";
+				createDriversTable();
+			}
+			
+			private function createDriversTable():void {
+				var sqlText:String = "CREATE TABLE "
+								   + "Drivers(ID INTEGER PRIMARY KEY,"
+								   + "DNAME TEXT,"
+								   + "TEAM_ID INTEGER)";
+				var createTableSQL:SQLStatement = new SQLStatement();
+				createTableSQL.addEventListener(SQLEvent.RESULT, onDriversTable);
+				createTableSQL.addEventListener(SQLErrorEvent.ERROR, onSQLError);
+				createTableSQL.sqlConnection = sqlConnection;
+				createTableSQL.text = sqlText;
+				createTableSQL.execute();
+			}
+			
+			protected function onDriversTable(event:SQLEvent):void {
+				dbStatus.text = "The Drivers table was created";
+//				dbBtn.setStyle('chromeColor', '#51B22F');
+//				viewBtn.visible = true;
+				updateBtnStatus();
+			}
+			
+			private function viewTeams():void {
+				navigator.pushView(views.TeamsView, sqlConnection);
+			}
+			
+			private function updateBtnStatus():void {
+				if (sqlConnection) {
+					if (sqlConnection.connected) {
+						viewBtn.visible = true;
+						dbBtn.enabled = false;
+						return;
+					} else {
+						trace("sqlConnection.connected is false");
+					}
+				} else {
+					trace("sqlConnection is null");
+				}
+				viewBtn.visible = false;
+				dbBtn.enabled = true;
+			}
+			
+			private function exit():void {
+				NativeApplication.nativeApplication.exit();
+			}
+		]]>
+	</fx:Script>
+	
+	<s:layout>
+		<s:VerticalLayout paddingLeft="20"
+						  paddingRight="20"
+						  paddingTop="20"
+						  paddingBottom="20"/>
+	</s:layout>
+	
+	<s:navigationContent>
+		<s:Button label="Quit"
+				  click="exit()"/>
+	</s:navigationContent>
+	
+	<s:VGroup width="100%" height="163">
+		<s:Label id="urlStatus"
+				 width="100%"
+				 height="30"
+				 paddingLeft="5"
+				 fontSize="18"
+				 text="URL Status"/>
+		<s:TextArea id="dataResult"
+					width="100%"
+					height="100"
+					fontSize="18"
+					prompt="No data yet."/>
+	</s:VGroup>
+	
+	<s:VGroup width="100%">
+		<s:Label id="dbStatus"
+				 width="100%"
+				 height="30"
+				 paddingLeft="5"
+				 fontSize="18"
+				 text="Database Status"/>
+		<s:TextArea id="dbPath"
+					width="100%"
+					height="80"
+					fontSize="18"
+					prompt="Database Path"/>
+	</s:VGroup>
+	<s:HGroup width="100%" 
+			  height="65"
+			  verticalAlign="middle">
+		<s:Button id="dbBtn"
+				  label="Open Database"
+				  height="50"
+				  click="openDb()"/>
+	</s:HGroup>
+	<s:HGroup width="100%" 
+			  height="50"
+			  verticalAlign="middle">
+		<s:Button id="viewBtn"
+				  height="50"
+				  visible="false"
+				  label="View Teams"
+				  click="viewTeams()"/>
+	</s:HGroup>
+</s:View>

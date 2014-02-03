@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		title="Update Teams"
+		creationComplete="onCreationComplete()">
+	<fx:Script>
+		<![CDATA[
+			private var d1:Object={};
+			private var d2:Object={};
+			
+			private function onCreationComplete():void {
+				trace("UpdateTeamView.onCreationComplete(), sqlType: " + data.sqlType);
+				if (data.sqlType == "UPDATE") {
+					title = "Update Team View";
+					description.text = "Make changes to the team...";
+					
+					teamTxt.text = data.teamName;
+					
+					button1.label = "Save changes";
+					button2.visible = true;
+					
+					selectDrivers();
+				} else if (data.sqlType == "INSERT") {
+					title = "Add Team View";
+					description.text = "Add a new team to the database...";
+					
+					button1.label = "Insert Team";
+					button2.visible = true;
+				}
+			}
+			
+			private function addTeam(teamName:String):void {
+				var sqlText:String = "INSERT INTO Teams(TNAME) VALUES(:tname)";
+				trace("UpdateTeamView.addTeam(), teamName: " + teamName);
+				
+				var addTeamSQL:SQLStatement = new SQLStatement();
+				addTeamSQL.addEventListener(SQLEvent.RESULT, onAddTeam);
+				addTeamSQL.addEventListener(SQLErrorEvent.ERROR, onSQLError);
+				addTeamSQL.sqlConnection = data.sqlConnection;
+				addTeamSQL.text = sqlText;
+				addTeamSQL.parameters[":tname"] = teamName;
+				addTeamSQL.execute();
+			}
+			
+			private function onAddTeam(e:SQLEvent):void {
+				var addTeamSQL:SQLStatement = SQLStatement(e.target);
+				addTeamSQL.removeEventListener(SQLEvent.RESULT, onAddTeam);
+				addTeamSQL.removeEventListener(SQLErrorEvent.ERROR, onSQLError);
+				
+				var rowId:Number = addTeamSQL.getResult().lastInsertRowID;
+				trace("UpdateTeamView.onAddTeam(), lastInsertRowID: " + rowId);
+				if (rowId != 0) {
+					var sqlText:String = "SELECT TEAM_ID FROM Teams " 
+									   + "WHERE Teams.TNAME = (:tname)";
+					
+					var teamIdSQL:SQLStatement = new SQLStatement();
+					teamIdSQL.addEventListener(SQLEvent.RESULT, onTeamId);
+					teamIdSQL.addEventListener(SQLErrorEvent.ERROR, onSQLError);
+					teamIdSQL.sqlConnection = data.sqlConnection;
+					teamIdSQL.text = sqlText;
+					teamIdSQL.parameters[":tname"] = teamTxt.text;
+					teamIdSQL.execute();
+				}
+			}
+			
+			private function onTeamId(e:SQLEvent):void {
+				var teamIdSQL:SQLStatement = SQLStatement(e.target);
+				var result:SQLResult = teamIdSQL.getResult();
+				var tId:Number = result.data[0]["TEAM_ID"];
+				addDriver(driverOne.text, tId);
+				addDriver(driverTwo.text, tId);
+			}
+			
+			private function addDriver(driverName:String, teamId:Number):void {
+				var sqlText:String = "INSERT INTO Drivers(DNAME, TEAM_ID) "
+								   + "VALUES(:dname, :teamId)";
+				
+				var addDriverSQL:SQLStatement = new SQLStatement();
+				addDriverSQL.addEventListener(SQLEvent.RESULT, onAddDriver);
+				addDriverSQL.addEventListener(SQLErrorEvent.ERROR, onSQLError);
+				addDriverSQL.sqlConnection = data.sqlConnection;
+				addDriverSQL.text = sqlText;
+				addDriverSQL.parameters[":dname"] = driverName;
+				addDriverSQL.parameters[":teamId"] = teamId;
+				addDriverSQL.execute();
+			}
+			
+			private function onAddDriver(e:SQLEvent):void {
+				var sqlStatement:SQLStatement = SQLStatement(e.target);
+				sqlStatement.removeEventListener(SQLEvent.RESULT, onAddDriver);
+				sqlStatement.removeEventListener(SQLErrorEvent.ERROR, onSQLError);
+				
+				if (sqlStatement.getResult().lastInsertRowID != 0) {
+					description.text = "The record was inserted successfully";
+				}
+			}
+			
+			private function selectDrivers():void {
+				var sqlText:String = "SELECT * FROM Drivers "
+								   + "WHERE TEAM_ID = (:teamId)";
+				var selectDriversSQL:SQLStatement = new SQLStatement();
+				selectDriversSQL.addEventListener(SQLEvent.RESULT, onSelectDrivers);
+				selectDriversSQL.addEventListener(SQLErrorEvent.ERROR, onSQLError);
+				selectDriversSQL.sqlConnection = data.sqlConnection;
+				selectDriversSQL.text = sqlText;
+				selectDriversSQL.parameters[":teamId"] = Number(data.teamId);
+				selectDriversSQL.execute();
+			}
+			
+			private function onSelectDrivers(e:SQLEvent):void {
+				var result:SQLResult = SQLStatement(e.target).getResult();
+				
+				d1.name = result.data[0]["DNAME"];
+				d1.id = result.data[0]["ID"];
+				d1.teamId = result.data[0]["TEAM_ID"];
+				
+				d2.name = result.data[1]["DNAME"];
+				d2.id = result.data[1]["ID"];
+				d2.teamId = result.data[1]["TEAM_ID"];
+				
+				driverOne.text = d1.name;
+				driverTwo.text = d2.name;
+			}
+			
+			private function updateTeam():void {
+				var sqlText:String = "UPDATE Teams SET TNAME = (:tname) "
+								   + "WHERE TEAM_ID = (:teamId)";
+				
+				var updateSQL:SQLStatement = new SQLStatement();
+				updateSQL.addEventListener(SQLEvent.RESULT, onUpdateTeam);
+				updateSQL.addEventListener(SQLErrorEvent.ERROR, onSQLError);
+				updateSQL.sqlConnection = data.sqlConnection;
+				updateSQL.text = sqlText;
+				updateSQL.parameters[":tname"] = teamTxt.text;
+				updateSQL.parameters[":teamId"] = Number(data.teamId);
+				updateSQL.execute();
+			}
+			
+			private function onUpdateTeam(e:SQLEvent):void {
+				updateDriver(driverOne.text, d1.id);
+				updateDriver(driverTwo.text, d2.id);
+				navigator.popView();
+			}
+			
+			private function updateDriver(driverName:String, driverId:Number):void {
+				var sqlText:String = "UPDATE Drivers SET DNAME = (:driverName) "
+								   + "WHERE ID = (:driverId)";
+				var sql:SQLStatement = new SQLStatement();
+				sql.addEventListener(SQLEvent.RESULT, onUpdateDriver);
+				sql.addEventListener(SQLErrorEvent.ERROR, onSQLError);
+				sql.sqlConnection = data.sqlConnection;
+				sql.text = sqlText;
+				sql.parameters[":driverName"] = driverName;
+				sql.parameters[":driverId"] = driverId;
+				sql.execute();
+			}
+			
+			private function onUpdateDriver(e:SQLEvent):void {
+				description.text = "The record was updated successfully";
+			}
+			
+			private function onSQLError(e:SQLErrorEvent):void {
+				description.text = "Unable to execute SQL command.";
+			}
+			
+			private function onBtnOne():void {
+				if (data.sqlType == "UPDATE") {
+					updateTeam();
+				} else if (data.sqlType == "INSERT") {
+					addTeam(teamTxt.text);
+				}
+			}
+		]]>
+	</fx:Script>
+	<s:layout>
+		<s:VerticalLayout paddingLeft="20"
+						  paddingRight="20"
+						  paddingTop="20"
+						  paddingBottom="20"/>
+	</s:layout>
+	<s:navigationContent>
+		<s:Button label="Back"
+				  click="navigator.popView()"/>
+	</s:navigationContent>
+	<s:Label id="description"
+			 width="100%"
+			 height="40"
+			 verticalAlign="middle"/>
+	<s:VGroup width="100%"
+			  height="212"
+			  paddingTop="20"
+			  paddingLeft="25"
+			  paddingRight="50">
+		<s:HGroup width="100%"
+				  height="50"
+				  horizontalAlign="right">
+			<s:Label height="50"
+					 text="Team"
+					 verticalAlign="middle"
+					 paddingRight="10"/>
+			<s:TextInput id="teamTxt"
+						 width="100"
+						 height="50"/>
+		</s:HGroup>
+		<s:HGroup width="100%"
+				  height="50"
+				  horizontalAlign="right">
+			<s:Label height="50"
+					 text="Driver No. 1"
+					 verticalAlign="middle"
+					 paddingRight="10"/>
+			<s:TextInput id="driverOne"
+						 width="100"
+						 height="50"/>
+		</s:HGroup>
+		<s:HGroup width="100%"
+				  height="50"
+				  horizontalAlign="right">
+			<s:Label height="50"
+					 text="Driver No. 2"
+					 verticalAlign="middle"
+					 paddingRight="10"/>
+			<s:TextInput id="driverTwo"
+						 width="100"
+						 height="50"/>
+		</s:HGroup>
+	</s:VGroup>
+	<s:HGroup width="100%"
+			  height="50"
+			  gap="16"
+			  horizontalAlign="center"
+			  verticalAlign="bottom">
+		<s:Button id="button1"
+				  click="onBtnOne()"
+				  height="50"/>
+		<s:Button id="button2"
+				  click="navigator.popView()"
+				  height="50"
+				  label="Cancel"/>
+	</s:HGroup>
+</s:View>

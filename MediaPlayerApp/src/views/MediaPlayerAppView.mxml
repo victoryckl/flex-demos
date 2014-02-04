@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark"
+		xmlns:vo="model.vo.*"
+		creationComplete="onCreationComplete()"
+		title="Media Player App">
+	<fx:Script>
+		<![CDATA[
+			import org.osmf.events.TimeEvent;
+			
+			[Bindable]
+			private var basePath:String = "";
+//			private var basePath:String = "http://localhost/video/";
+			
+			private function onCreationComplete():void {
+				this.addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
+				trace("onCreationComplete()");
+			}
+			
+			private function onAddedToStage(e:Event):void {
+				e.target.stage.addEventListener(StageOrientationEvent.ORIENTATION_CHANGE, 
+					onOrientationChange);
+				trace("onAddedToStage()");
+				updateLayout();
+			}
+			
+			private function onOrientationChange(e:StageOrientationEvent):void {
+				updateLayout();
+			}
+			
+			private function updateLayout():void {
+				var w:int;
+				var h:int;
+				
+				trace("updateLayout(), "+currentState);
+				
+				switch(currentState) {
+					case "portrait":
+						actionBarVisible = true;
+						w = systemManager.screen.width;
+						h = w/(4/3);
+						break;
+					case "landscape":
+						actionBarVisible = false;
+						w = systemManager.screen.width;
+						h = systemManager.screen.height;
+					break;
+				}
+				mediaPlayer.width = w;
+				mediaPlayer.height = h;
+				trace("media player-("+w+","+h+")");
+			}
+			
+			private function onComplete(e:TimeEvent):void {
+				var index:int = mediaPlaylist.selectedIndex;
+				index++;
+				if (index < arrList.source.length) {
+					mediaPlaylist.selectedIndex = index;
+					mediaPlayer.source = basePath + arrList.source[index].url;
+					mediaPlayer.play();
+				}
+			}
+			
+			private function onClick(event:MouseEvent):void {
+				var mediaItem:MediaItemVO;
+				mediaItem = arrList.source[mediaPlaylist.selectedIndex];
+				trace("url: " + (basePath + mediaItem.url));
+				mediaPlayer.source = basePath + mediaItem.url;
+				mediaPlayer.play();
+			}
+			
+			private function playInit():void {
+				mediaPlayer.fullScreenButton.toolTip="Toggle full screen";
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		
+		<s:State name="portrait"/>
+		<s:State name="landscape"/>
+		
+		<s:ArrayList id="arrList">
+			<vo:MediaItemVO id="mediaItem1"
+							title="1.f4v"
+							description="1.f4v"
+							url="1.f4v"
+							duration="0:32"/>
+			<vo:MediaItemVO id="mediaItem2"
+							title="2.flv"
+							description="2.flv"
+							url="2.flv"
+							duration="0:15"/>
+			<vo:MediaItemVO id="mediaItem3"
+							title="3.mp4"
+							description="3.mp4"
+							url="3.mp4"
+							duration="0:03"/>
+		</s:ArrayList>
+	</fx:Declarations>
+	
+	<s:Group width="100%">
+		<s:layout.portrait>
+			<s:VerticalLayout gap="0"
+							  paddingBottom="0"
+							  paddingLeft="0"
+							  paddingRight="0"
+							  paddingTop="0"/>
+		</s:layout.portrait>
+		<s:layout.landscape>
+			<s:HorizontalLayout gap="0"
+							  paddingBottom="0"
+							  paddingLeft="0"
+							  paddingRight="0"
+							  paddingTop="0"/>
+		</s:layout.landscape>
+		
+		<s:VideoPlayer id="mediaPlayer"
+					   complete="onComplete(event)"
+					   autoDisplayFirstFrame="true"
+					   autoPlay="false"
+					   autoRewind="true"
+					   fontSize="16"
+					   fontWeight="normal"
+					   interactionMode="touch"
+					   scaleMode="letterbox"
+					   source="{basePath}{mediaItem1.url}"
+					   volume="3"
+					   initialize="playInit()"/>
+		
+		<s:List id="mediaPlaylist"
+				itemRenderer="views.renderers.MediaItemRenderer"
+				width="100%"
+				height.landscape="100%"
+				dataProvider="{arrList}"
+				click="onClick(event)"/>
+	</s:Group>
+</s:View>

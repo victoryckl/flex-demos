@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark"  
+				autoDrawBackground="true">
+	<s:layout>
+		<s:VerticalLayout gap="5"
+						  paddingLeft="10"
+						  paddingTop="20"
+						  paddingBottom="5"/>
+	</s:layout>
+	<fx:Script>
+		<![CDATA[
+			import mx.utils.ObjectProxy;
+		]]>
+	</fx:Script>
+	
+	<s:Label text="{new ObjectProxy(data).title} ({new ObjectProxy(data).duration})"
+			 fontSize="18"/>
+	
+	<s:Label text="{new ObjectProxy(data).description}"
+			 fontSize="18"/>
+	
+</s:ItemRenderer>

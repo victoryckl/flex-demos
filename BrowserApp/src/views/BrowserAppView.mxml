@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		title="Browser"
+		creationComplete="onCreationComplete()">
+	
+	<fx:Script>
+		<![CDATA[
+			private var webView:StageWebView;
+			
+			private function onCreationComplete():void {
+				trace("onCreationComplete(), stage:" + stage);
+				addEventListener(Event.ADDED_TO_STAGE, onAddToStage);
+			}
+			
+			private var webViewY:int = 230;
+			private function onAddToStage(event:Event):void {
+				trace("onAddToStage() stage:" + stage);
+				var rect:Rectangle = new Rectangle();
+				rect.x = 0;
+				rect.y = webViewY;
+				rect.width = stage.stageWidth;
+				rect.height = stage.stageHeight - webViewY;
+				
+				webView = new StageWebView();
+				webView.addEventListener(Event.COMPLETE, onComplete);
+				webView.stage = stage;
+				webView.viewPort = rect;
+				webView.loadURL("http://www.baidu.com");
+				
+				var divider:Sprite = new Sprite();
+				divider.graphics.beginFill(0x000000);
+				divider.graphics.drawRect(0, webViewY-5, stage.stageWidth, 5);
+				divider.graphics.endFill();
+				
+				webView.stage.addChild(divider);
+			}
+			
+			private function onComplete(event:Event):void {
+				pageTitle.text = webView.title;
+				pageAddress.text = webView.location;
+				
+				backBtn.enabled = webView.isHistoryBackEnabled;
+				forwardBtn.enabled = webView.isHistoryForwardEnabled;
+			}
+			
+			private function back():void {
+				if (webView.isHistoryBackEnabled) {
+					webView.historyBack();
+				}
+			}
+			
+			private function forward():void {
+				if (webView.isHistoryForwardEnabled) {
+					webView.historyForward();
+				}
+			}
+			
+			private function go():void {
+				webView.loadURL(pageAddress.text);
+			}
+		]]>
+	</fx:Script>
+	
+	<s:layout>
+		<s:VerticalLayout paddingLeft="20"
+						  paddingRight="20"
+						  paddingBottom="20"
+						  paddingTop="20"/>
+	</s:layout>
+	
+	<s:navigationContent>
+		<s:Button id="backBtn"
+				  label="Back"
+				  enabled="false"
+				  click="back()"/>
+		
+		<s:Button id="forwardBtn"
+				  label="Forward"
+				  enabled="false"
+				  click="forward()"/>
+	</s:navigationContent>
+	
+	<s:VGroup width="100%"
+			  height="95">
+		<s:Label id="pageTitle"
+				 paddingLeft="5"
+				 fontSize="16"
+				 width="100%"
+				 height="20"
+				 text="page title"/>
+		<s:HGroup width="100%"
+				  height="70"
+				  y="200">
+			<s:TextInput id="pageAddress"
+						 width="100%"
+						 height="50"
+						 fontSize="18"
+						 text="page address"/>
+			<s:Button id="goBtn"
+					  label="Go"
+					  height="50"
+					  click="go()"/>
+		</s:HGroup>
+	</s:VGroup>
+	
+</s:View>

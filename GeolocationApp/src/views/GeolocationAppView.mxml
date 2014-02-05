@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark"
+		creationComplete="onCreationComplete()"
+		title="Geolocation">
+	
+	<fx:Script>
+		<![CDATA[
+			import flash.sensors.Geolocation;
+			
+			private var geolocation:Geolocation;
+			
+			private function onCreationComplete():void {
+				if (Geolocation.isSupported) {
+					geolocation = new Geolocation();
+					if (!geolocation.muted) {
+						geolocation.setRequestedUpdateInterval(5000);
+						geolocation.addEventListener(GeolocationEvent.UPDATE, onUpdate);
+					} else {
+						geolocationTxt.text = "GPS is off.";
+					}
+				} else {
+					geolocationTxt.text = "GPS is unsupported.";
+				}
+			}
+			
+			private function exit():void {
+				NativeApplication.nativeApplication.exit();
+			}
+			
+			private function onUpdate(e:GeolocationEvent):void {
+				geolocationTxt.text = "longitude: " + e.longitude
+								  + "\nlatitude: " + e.latitude
+								  + "\naltitud: " + e.altitude
+								  + "\nhorizontalAccuracy: " + e.horizontalAccuracy
+								  + "\nverticalAccuracy: " + e.verticalAccuracy
+								  + "\nspeed: " + e.speed
+								  + "\ntimestamp: " + e.timestamp;
+				
+				googleImage.source = "http://maps.google.com/maps/api/staticmap?" 
+								   + "center=" + e.latitude + "," + e.longitude
+								   + "&zoom=15"
+								   + "&size=435x200"
+								   + "&sensor=true";
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<s:navigationContent>
+		<s:Button label = "Quit"
+				  click="exit()"/>
+	</s:navigationContent>
+	
+	<s:layout>
+		<s:VerticalLayout paddingLeft="20"
+						  paddingRight="20"
+						  paddingBottom="20"
+						  paddingTop="20"/>
+	</s:layout>
+	
+	<s:Label text="Geolocation data..."/>
+	<s:TextArea id="geolocationTxt"
+				width="100%"
+				height="300"
+				paddingBottom="10"/>
+	
+	<s:Label text="Google maps image..."/>
+	<s:Image id="googleImage"/>
+</s:View>

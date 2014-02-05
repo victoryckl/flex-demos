@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		title="Microphone"
+		creationComplete="onCreationComplete()">
+	<fx:Script>
+		<![CDATA[
+			import flash.events.SampleDataEvent;
+			import flash.media.MediaPromise;
+			import flash.media.Sound;
+			import flash.utils.ByteArray;
+			
+			import mx.collections.ArrayCollection;
+			
+			private var microphone:Microphone;
+			private var soundByteArray:ByteArray;
+			private var soundObj:Sound;
+			
+			private function onCreationComplete():void {
+				soundCaptureDevices.dataProvider = new ArrayCollection(Microphone.names);
+				soundCaptureDevices.selectedIndex = 0;
+			}
+			
+			private function startRecording():void {
+				playBtn.enabled = false;
+				startBtn.enabled = false;
+				stopBtn.enabled = true;
+				
+				soundByteArray = new ByteArray();
+				
+				var index:int = soundCaptureDevices.selectedIndex;
+				microphone = Microphone.getMicrophone(index);
+				microphone.addEventListener(SampleDataEvent.SAMPLE_DATA, onSampleData);
+				microphone.rate = 44;
+				microphone.setSilenceLevel(0, 1000);
+			}
+			
+			private function stopRecording():void {
+				playBtn.enabled = true;
+				startBtn.enabled = true;
+				stopBtn.enabled = false;
+				
+				microphone.removeEventListener(SampleDataEvent.SAMPLE_DATA, onSampleData);
+			}
+			
+			private function onSampleData(e:SampleDataEvent):void {
+				soundByteArray.writeBytes(e.data);
+			}
+			
+			private function playRecording():void {
+				var trans:SoundTransform = new SoundTransform(1, -1);
+				soundByteArray.position = 0;
+				soundObj = new Sound();
+				soundObj.addEventListener(SampleDataEvent.SAMPLE_DATA, playSound);
+				soundObj.play(0, 1, trans);
+			}
+			
+			private function playSound(e:SampleDataEvent):void {
+				if (soundByteArray.bytesAvailable <= 0) {
+					return;
+				} else {
+					for (var i:int = 0; i<8192; i++) {
+						var audioSample:Number = 0;
+						if (soundByteArray.bytesAvailable > 0) {
+							audioSample = soundByteArray.readFloat();
+						}
+						e.data.writeFloat(audioSample);
+						e.data.writeFloat(audioSample);
+					}
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<s:layout>
+		<s:VerticalLayout paddingLeft="20"
+						  paddingRight="20"
+						  paddingBottom="20"
+						  paddingTop="20"/>
+	</s:layout>
+
+	<s:VGroup width="100%"
+			  gap="20"
+			  horizontalAlign="center">
+		
+		<s:Label id="description"
+				 text="Select microphone then start recording..."
+				 height="30"/>
+		<s:ComboBox id="soundCaptureDevices"
+					width="90%"
+					height="55"
+					focusEnabled="false"/>
+		
+		<s:HGroup width="100%"
+				  gap="20"
+				  horizontalAlign="center">
+			<s:Button id="startBtn"
+					  label="Record"
+					  chromeColor="#51B22F"
+					  click="startRecording()"/>
+			<s:Button id="stopBtn"
+					  label="Stop"
+					  chromeColor="#CB0909"
+					  click="stopRecording()"/>
+			<s:Button id="playBtn"
+					  label="Playback"
+					  click="playRecording()"
+					  enabled="false"/>
+		</s:HGroup>
+	</s:VGroup>
+	
+</s:View>

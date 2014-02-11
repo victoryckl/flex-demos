@@ -9,8 +9,13 @@ package
 	import flash.display.Shape;
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.events.IOErrorEvent;
 	import flash.events.KeyboardEvent;
+	import flash.events.SecurityErrorEvent;
+	import flash.filesystem.File;
+	import flash.net.URLLoader;
 	import flash.net.URLRequest;
+	import flash.text.TextField;
 	
 	import flashx.textLayout.events.ModelChange;
 	
@@ -18,17 +23,18 @@ package
 	{
 		private var swfLoader:Loader = new Loader();
 		private var swfMC:MovieClip = null;
+		private var pathXml:XML = null;
 		
 		public function LoadSwf()
 		{
 			super();
 			initStage();
-			initLoader();
+			initPath();
 		}
 		
 		//--------------------------------
 		private function initStage():void {
-			stage.color = 0x00000;
+//			stage.color = 0x00000;
 			stage.addEventListener(Event.ACTIVATE, onActivate);
 			stage.addEventListener(Event.DEACTIVATE, onDeActivate);
 			stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
@@ -40,31 +46,35 @@ package
 		}
 		
 		private function onDeActivate(e:Event):void {
-			trace("onDeActivate(), swfLoader.swfLoader:"+swfLoader.visible);
+			trace("onDeActivate()");
 			swfPause();
 		}
 		
 		private function onActivate(e:Event):void {
-			trace("onActivate(), swfLoader.swfLoader:"+swfLoader.visible);
+			trace("onActivate()");
 			swfResume();
 		}
 		
 		//---------------------------------
 		private function initLoader():void {
 			swfLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, loadComplete);
-			swfLoader.load(new URLRequest("file:///sdcard/1.swf"));
+			swfLoader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, loadIOError);
+			swfLoader.contentLoaderInfo.addEventListener(SecurityErrorEvent.SECURITY_ERROR, loadSecurityError);
+			trace("url: "+pathXml.url);
+			swfLoader.load(new URLRequest(pathXml.url));
 		}
 		
 		private function swfResume():void {
-			if (swfMC != null) {
-				swfMC.play();
-			}
+//			if (swfMC != null) {
+//				swfMC.play();
+//			}
 		}
 		
 		private function swfPause():void {
-			if (swfMC != null) {
-				swfMC.stop();
-			}
+//			if (swfMC != null) {
+//				swfMC.stop();
+//			}
+			swfStop();
 		}
 		
 		private function swfStop():void {
@@ -81,6 +91,14 @@ package
 			
 			stage.addChild(swfLoader);
 			swfMC = swfLoader as MovieClip;
+		}
+		
+		private function loadIOError(e:IOErrorEvent):void {
+			trace("swfLoader loadIOError, "+e.toString());
+		}
+		
+		private function loadSecurityError(e:SecurityErrorEvent):void {
+			trace("swfLoader loadSecurityError, "+e.toString());
 		}
 		
 		//-----------------------
@@ -116,6 +134,23 @@ package
 			o.y = (stage.stageHeight - loadInfo.height*scale) / 2;
 			
 			traceInfo(o);
+		}
+		
+		//-----------------------
+		private function initPath():void {
+			var loader:URLLoader = new URLLoader();
+			loader.addEventListener(Event.COMPLETE, function(e:Event):void {
+				trace("xml load complete, "+e.target.data);
+				pathXml = XML(e.target.data);
+				initLoader();
+			});
+			loader.addEventListener(IOErrorEvent.IO_ERROR, function(e:IOErrorEvent):void {
+				trace("io error, "+e.toString());
+			});
+			loader.addEventListener(SecurityErrorEvent.SECURITY_ERROR, function(e:SecurityErrorEvent):void {
+				trace("security error, "+e.toString());
+			});
+			loader.load(new URLRequest("file:///sdcard/path.xml"));
 		}
 	}
 }

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					   xmlns:s="library://ns.adobe.com/flex/spark" 
+					   xmlns:mx="library://ns.adobe.com/flex/mx"
+					   creationComplete="initApp()">
+	
+	<fx:Script>
+		<![CDATA[
+			private var myGreeter:Greeter = new Greeter();
+			
+			private function initApp():void {
+				mainText.text = myGreeter.sayHello("");
+			}
+		]]>
+	</fx:Script>
+	
+	<s:layout>
+		<s:VerticalLayout/>
+	</s:layout>
+	<s:TextArea id="mainText" width="100%"/>
+	
+	<s:HGroup width="100%">
+		<mx:Label text="User Name:"/>
+		<s:TextInput id="userNameTxt" 
+					 width="100%" 
+					 enter="mainText.text=myGreeter.sayHello(userNameTxt.text);"/>
+	</s:HGroup>
+</s:WindowedApplication>

@@ -1,169 +1,65 @@
 package
 {
-	import flash.display.GradientType;
+	import flash.display.DisplayObject;
 	import flash.display.Loader;
 	import flash.display.LoaderInfo;
-	import flash.display.SimpleButton;
+	import flash.display.Shape;
 	import flash.display.Sprite;
-	import flash.display.StageAlign;
-	import flash.display.StageScaleMode;
 	import flash.events.Event;
-	import flash.events.IOErrorEvent;
-	import flash.events.MouseEvent;
-	import flash.text.TextField;
-	import flash.text.TextFormat;
 	import flash.net.URLRequest;
 	
 	public class LoadSwf extends Sprite
 	{
-		private var tiptf:TextField;
-		private var swfstage:Sprite;
-		private var swfstageW:Number=350;
-		private var swfstageH:Number=280;
-		private var loader:Loader;
+		var swfLoader:Loader = new Loader();
 		
 		public function LoadSwf()
 		{
 			super();
 			
-			// 支持 autoOrient
-			stage.align = StageAlign.TOP_LEFT;
-			stage.scaleMode = StageScaleMode.NO_SCALE;
-			
-			var spritebtn:Sprite=new Sprite();
-			var btn1=LoadButton("加载影片一");
-			var btn2=LoadButton("加载影片二");
-			btn2.y=30;
-			var btn3=LoadButton("加载影片三");
-			btn3.y=60;
-			var btn4=LoadButton("加载影片四");
-			btn4.y=90;
-			spritebtn.addChild(btn1);
-			spritebtn.addChild(btn2);
-			spritebtn.addChild(btn3);
-			spritebtn.addChild(btn4);
-			addChild(spritebtn);
-			
-			var bg:Sprite=new Sprite();
-			bg.graphics.lineStyle(4,0xffffff,0.80);
-			bg.graphics.drawRect(0,0,swfstageW+4,swfstageH+4);
-			swfstage=new Sprite();
-			swfstage.graphics.beginFill(0x000000,0.85);
-			swfstage.graphics.drawRect(0,0,swfstageW,swfstageH);
-			swfstage.graphics.endFill();
-			var swfmask:Sprite=new Sprite();
-			swfmask.graphics.beginFill(0xffffff);
-			swfmask.graphics.drawRect(0,0,swfstageW,swfstageH);
-			swfmask.graphics.endFill();
-			swfstage.x=(stage.stageWidth-swfstage.width-spritebtn.width)/2;
-			swfstage.y=(stage.stageHeight-swfstage.height)/2;
-			tiptf=new TextField();
-			tiptf.multiline=true;
-			tiptf.wordWrap=true;
-			tiptf.width=swfstage.width-20;
-			var textformat:TextFormat=new TextFormat();
-			textformat.color=0xff0000;
-			tiptf.defaultTextFormat=textformat;
-			swfstage.addChild(tiptf);
-			swfmask.x=swfstage.x;
-			swfmask.y=swfstage.y;
-			swfstage.mask=swfmask;
-			bg.x=swfstage.x-2;
-			bg.y=swfstage.y-2;
-			addChild(bg);
-			addChild(swfstage);
-			addChild(swfmask);
-			spritebtn.y=(stage.stageHeight-spritebtn.height)/2;
-			spritebtn.x=swfstage.x+swfstage.width;
-			btn1.name="A";
-			btn2.name="B";
-			btn3.name="C";
-			btn4.name="D";
-			btn1.addEventListener(MouseEvent.CLICK,loadswf);
-			btn2.addEventListener(MouseEvent.CLICK,loadswf);
-			btn3.addEventListener(MouseEvent.CLICK,loadswf);
-			btn4.addEventListener(MouseEvent.CLICK,loadswf);
-			loader=new Loader();
-			loader.alpha=1;
-			swfstage.addChild(loader);
-		}
-		private function loadswf(e:MouseEvent):void {
-			var url:String="";
-			switch (e.target.name) {
-				case "A" :
-					url="file:///sdcard/_trot.swf";
-					break;
-				case "B" :
-					url="file:///sdcard/_takeme.swf";
-					break;
-				case "C" :
-					url="file:///sdcard/_weather.swf";
-					break;
-				case "D" :
-					url="file:///sdcard/_wewish.swf";
-					break;
-			}
-			var urlrequest:URLRequest=new URLRequest(url);
-			loader.unloadAndStop();//卸载并停止
-			loader.load(urlrequest);
-			loader.contentLoaderInfo.addEventListener(Event.COMPLETE,playnew);
-			loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,onioerror);
+			swfLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, loadComplete);
+			swfLoader.load(new URLRequest("file:///sdcard/4.swf"));
 		}
 		
-		private function playnew(e:Event):void {
-			var loaderinfo:LoaderInfo=LoaderInfo(e.target);
-			var swfsw:Number=loaderinfo.width;//被加载文件的舞台宽度
-			var swfsh:Number=loaderinfo.height;//被加载文件的舞台高度
-			var swfw:Number=loaderinfo.content.width;//被加载文件的宽度
-			var swfh:Number=loaderinfo.content.height;//被加载文件的高度
-			var scaleW:Number=swfstageW/swfsw;
-			var scaleH:Number=swfstageH/swfsh;
-			var scale:Number;
-			if (scaleW>scaleH) {
-				scale=scaleW;
-			} else {
-				scale=scaleH;
-			}
-			loader.width=swfw*scale;
-			loader.height=swfh*scale;
+		private function loadComplete(e:Event):void {
+			trace("loadComplete()");
+			centerAndFull(swfLoader, e);
+			
+			swfLoader.mask = getMasker(swfLoader);
+			addChild(swfLoader.mask);
+			addChild(swfLoader);
 		}
 		
-		private function onioerror(e:IOErrorEvent):void{
-			tiptf.text=e.text;
-			tiptf.autoSize="left";
-			tiptf.x=10;
-			tiptf.y=(swfstage.height-tiptf.height)/2;
+		//-----------------------
+		private function getMasker(o:DisplayObject):Shape {
+			var masker:Shape = new Shape();
+			masker.graphics.beginFill(0xffffff);
+			masker.graphics.drawRect(o.x, o.y, o.width, o.height);
+			masker.graphics.endFill();
+			return masker;
 		}
 		
-		private var btnW:int = 125;
-		private var btnH:int = 35;
-		private function LoadButton(btnText:String):SimpleButton {
-			var sup:Sprite=new Sprite();
-			sup.graphics.lineStyle(1,0xffffff,0.75);
-			sup.graphics.beginGradientFill(GradientType.LINEAR,[0x0000FF,0x00FF00],[0.75,0.75],[100,255]);
-			sup.graphics.drawRect(0,0,btnW,btnH);
-			sup.graphics.endFill();
+		private function traceInfo(o:DisplayObject):void {
+			trace("x:"+o.x+", y:"+o.y
+				+ "\nw:"+o.width +", h:" + o.height
+				+ "\nsx:" + o.scaleX +", sy:"+o.scaleY+", sz:"+o.scaleZ);
+		}
+		
+		private function centerAndFull(o:DisplayObject, e:Event):void {
+			traceInfo(o);
+			var loadInfo:LoaderInfo = LoaderInfo(e.target);
 			
-			var sover:Sprite=new Sprite();
-			sover.graphics.lineStyle(1,0xffffff,0.75);
-			sover.graphics.beginGradientFill(GradientType.LINEAR,[0xFF00FF,0xFFFF00],[0.75,0.75],[100,255]);
-			sover.graphics.drawRect(0,0,btnW,btnH);
-			sover.graphics.endFill();
+			//full
+			var scalex:Number = stage.stageWidth / loadInfo.width;
+			var scaley:Number = stage.stageHeight / loadInfo.height;
+			var scale:Number = scalex < scaley ? scalex : scaley;
+			o.width *= scale;
+			o.height *= scale;
 			
-			var btntf1:TextField=new TextField();
-			btntf1.text=btnText;
-			btntf1.multiline=false;
-			btntf1.autoSize="left";
-			sup.addChild(btntf1);
+			//center
+			o.x = (stage.stageWidth - loadInfo.width*scale) / 2;
+			o.y = (stage.stageHeight - loadInfo.height*scale) / 2;
 			
-			var btntf2:TextField=new TextField();
-			btntf2.text=btnText;
-			btntf2.multiline=false;
-			btntf2.autoSize="left";
-			sover.addChild(btntf2);
-			
-			var btn:SimpleButton=new SimpleButton(sup,sover,sup,sup);
-			return btn;
+			traceInfo(o);
 		}
 	}
 }

@@ -199,7 +199,7 @@ package
 		}
 		
 		private function getRootUrl():String {
-			return File.documentsDirectory.url+File.separator;
+			return "http://127.0.0.1:8080"+File.documentsDirectory.nativePath+File.separator;
 		}
 		
 		private function jointUrl(name:String):String {

@@ -1,6 +1,7 @@
 package
 {
 	import flash.desktop.NativeApplication;
+	import flash.display.AVM1Movie;
 	import flash.display.DisplayObject;
 	import flash.display.Loader;
 	import flash.display.LoaderInfo;
@@ -14,6 +15,10 @@ package
 	import flash.filesystem.File;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
+	import flash.net.drm.AuthenticationMethod;
+	import flash.text.TextField;
+	import flash.text.TextFieldAutoSize;
+	import flash.text.TextFormat;
 	
 	import flashx.textLayout.events.ModelChange;
 	
@@ -84,6 +89,17 @@ package
 		
 		private function loadComplete(e:Event):void {
 			trace("loadComplete()");
+			
+			if (swfLoader.content is AVM1Movie) {
+				var loaderInfo:LoaderInfo = LoaderInfo(e.target);
+				var msg:String = loaderInfo.url + " is AVM1Movie.\n" +
+					"Only support ActionScript 3.0 swf!";
+				swfLoader.unloadAndStop();
+				trace(msg);
+				showError(msg);
+				return ;
+			}
+			
 			centerAndFull(swfLoader, e);
 			
 			swfLoader.mask = getMasker(swfLoader, e);
@@ -95,10 +111,12 @@ package
 		
 		private function loadIOError(e:IOErrorEvent):void {
 			trace("swfLoader loadIOError, "+e.toString());
+			showError(e.toString());
 		}
 		
 		private function loadSecurityError(e:SecurityErrorEvent):void {
 			trace("swfLoader loadSecurityError, "+e.toString());
+			showError(e.toString());
 		}
 		
 		//-----------------------
@@ -137,6 +155,31 @@ package
 		}
 		
 		//-----------------------
+		private function showError(msg:String):void {
+			var tfor:TextFormat = new TextFormat();
+			tfor.size = 15;
+			tfor.color = 0xff0000;
+			tfor.align = "center";
+			
+			var tf:TextField = new TextField();
+			tf.wordWrap = true;
+			tf.multiline = true;
+			tf.selectable = false;
+			tf.border = false;
+			tf.defaultTextFormat = tfor;
+			tf.text = "播放失败！\n请确认文件是否存在，或者重新打开一次!" + "\n" + msg;
+			tf.setTextFormat(tfor);
+			tf.width = stage.stageWidth/3*2;
+			tf.height = stage.stageHeight/2;
+			
+			stage.addChild(tf);
+			trace("stage: " + stage.stageWidth+","+stage.stageHeight
+				+"\ntf: "+tf.x + "," + tf.y + ",  "+tf.width + ","+tf.height);
+			tf.x = (stage.stageWidth - tf.width)/2;
+			tf.y = (stage.stageHeight - tf.height)/2;
+		}
+		
+		//-----------------------
 		private function initPath():void {
 			var loader:URLLoader = new URLLoader();
 			loader.addEventListener(Event.COMPLETE, function(e:Event):void {
@@ -146,9 +189,11 @@ package
 			});
 			loader.addEventListener(IOErrorEvent.IO_ERROR, function(e:IOErrorEvent):void {
 				trace("io error, "+e.toString());
+				showError(e.toString());
 			});
 			loader.addEventListener(SecurityErrorEvent.SECURITY_ERROR, function(e:SecurityErrorEvent):void {
 				trace("security error, "+e.toString());
+				showError(e.toString());
 			});
 			loader.load(new URLRequest(jointUrl("data/path.xml")));
 		}

@@ -2,7 +2,6 @@ package
 {
 	import flash.desktop.NativeApplication;
 	import flash.display.DisplayObject;
-	import flash.display.Graphics;
 	import flash.display.Loader;
 	import flash.display.LoaderInfo;
 	import flash.display.MovieClip;
@@ -15,7 +14,6 @@ package
 	import flash.filesystem.File;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
-	import flash.text.TextField;
 	
 	import flashx.textLayout.events.ModelChange;
 	
@@ -40,8 +38,8 @@ package
 			stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
 		}
 		
-		private function onKeyUp(event:KeyboardEvent):void {
-			trace("onKeyUp(), "+event.keyCode);
+		private function onKeyUp(e:KeyboardEvent):void {
+			trace("onKeyUp(), "+e.keyCode);
 			swfStop();
 		}
 		
@@ -60,8 +58,10 @@ package
 			swfLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, loadComplete);
 			swfLoader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, loadIOError);
 			swfLoader.contentLoaderInfo.addEventListener(SecurityErrorEvent.SECURITY_ERROR, loadSecurityError);
-			trace("url: "+pathXml.url);
-			swfLoader.load(new URLRequest(pathXml.url));
+			
+			var url:String = jointUrl(pathXml.url);
+			trace("url: "+url);
+			swfLoader.load(new URLRequest(url));
 		}
 		
 		private function swfResume():void {
@@ -140,7 +140,7 @@ package
 		private function initPath():void {
 			var loader:URLLoader = new URLLoader();
 			loader.addEventListener(Event.COMPLETE, function(e:Event):void {
-				trace("xml load complete, "+e.target.data);
+				trace("xml load complete, \n"+e.target.data);
 				pathXml = XML(e.target.data);
 				initLoader();
 			});
@@ -150,7 +150,28 @@ package
 			loader.addEventListener(SecurityErrorEvent.SECURITY_ERROR, function(e:SecurityErrorEvent):void {
 				trace("security error, "+e.toString());
 			});
-			loader.load(new URLRequest("file:///sdcard/path.xml"));
+			loader.load(new URLRequest(jointUrl("data/path.xml")));
+		}
+		
+		private function getRootUrl():String {
+			return File.documentsDirectory.url+File.separator;
+		}
+		
+		private function jointUrl(name:String):String {
+			return getRootUrl()+name;
+		}
+		
+		//-- for test --
+		private function readDir():void {
+			var file:File = File.documentsDirectory;
+			var fileObj:File;
+			var docsDirectory:Array = file.getDirectoryListing();
+			
+			trace(file.url+"\n"+file.nativePath);
+			for (var i:int = 0; i < docsDirectory.length; i++) {
+				fileObj = docsDirectory[i];
+				trace(fileObj.name);
+			}
 		}
 	}
 }
